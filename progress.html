@@ -1,35 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-  <title>Progress</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Guild Madness - Progress</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <header>
-  <h1>MADNESS GUILD</h1>
+  <h1>Guild Madness - Progress</h1>
+  <div id="loginForm">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <button onclick="logout()">Logout</button>
+  </div>
 </header>
 
-<nav>
-  <a href="index.html">Info</a>
-  <a href="progress.html">Progress</a>
-  <a href="loot.html">Loot</a>
-  <a href="support.html">Support</a>
-</nav>
-
 <section>
-  <h2>Progress</h2>
-
+  <h2>Progress da Raid</h2>
   <div class="admin">
-    <input id="bossName">
-    <input id="pulls" type="number">
-    <label>Dead <input type="checkbox" id="killed"></label>
-    <button onclick="addProgress()">Add</button>
+    <select id="raidSelect" onchange="loadProgress()">
+      <option value="">Escolhe Raid</option>
+      <option value="Raid1">Raid 1</option>
+      <option value="Raid2">Raid 2</option>
+    </select>
+    <input type="text" id="bossName" placeholder="Boss">
+    <input type="number" id="pulls" placeholder="Pulls">
+    <label>Mortos? <input type="checkbox" id="killed"></label>
+    <button onclick="addProgress()">Adicionar Progress</button>
   </div>
-
   <div id="progressList"></div>
+  <div id="progressSummary" class="card"></div>
 </section>
 
+<script type="module" src="firebase.js"></script>
 <script type="module" src="app.js"></script>
 </body>
 </html>
