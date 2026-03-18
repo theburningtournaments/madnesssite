@@ -1,29 +1,31 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-  <title>Support</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Guild Madness - Support</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <header>
-  <h1>MADNESS GUILD</h1>
+  <h1>Guild Madness - Support</h1>
+  <div id="loginForm">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <button onclick="logout()">Logout</button>
+  </div>
 </header>
 
-<nav>
-  <a href="index.html">Info</a>
-  <a href="progress.html">Progress</a>
-  <a href="loot.html">Loot</a>
-  <a href="support.html">Support</a>
-</nav>
-
 <section>
-  <h2>Support</h2>
-
-  <textarea id="ticketText"></textarea>
-  <button onclick="sendTicket()">Send</button>
+  <h2>Envie um Ticket ou Ideia</h2>
+  <div class="admin">
+    <textarea id="ticketText" placeholder="Digite seu ticket"></textarea>
+    <button onclick="sendTicket()">Enviar Ticket</button>
+  </div>
+  <div id="ticketsList"></div>
 </section>
 
+<script type="module" src="firebase.js"></script>
 <script type="module" src="app.js"></script>
 </body>
 </html>
