@@ -1,34 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-  <title>Loot</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Guild Madness - Loot Log</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <header>
-  <h1>MADNESS GUILD</h1>
+  <h1>Guild Madness - Loot Log</h1>
+  <div id="loginForm">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <button onclick="logout()">Logout</button>
+  </div>
 </header>
-
-<nav>
-  <a href="index.html">Info</a>
-  <a href="progress.html">Progress</a>
-  <a href="loot.html">Loot</a>
-  <a href="support.html">Support</a>
-</nav>
 
 <section>
   <h2>Loot Log</h2>
-
   <div class="admin">
-    <input id="player">
-    <input id="lootItem">
-    <button onclick="addLoot()">Add</button>
+    <input type="date" id="lootDate">
+    <input type="text" id="player" placeholder="Player">
+    <input type="text" id="lootItem" placeholder="Loot">
+    <button onclick="addLoot()">Adicionar Loot</button>
   </div>
-
   <div id="lootList"></div>
 </section>
 
+<script type="module" src="firebase.js"></script>
 <script type="module" src="app.js"></script>
 </body>
 </html>
