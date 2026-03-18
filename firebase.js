@@ -1,8 +1,8 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// ⚠️ SUBSTITUI PELOS TEUS DADOS
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyDKwDmRaPgLUa2jB4MTq_OPAyehPnnVPO8",
   authDomain: "madness-fe0a8.firebaseapp.com",
@@ -13,7 +13,9 @@ const firebaseConfig = {
   measurementId: "G-G0M19FBPZC"
 };
 
+// Inicializa Firebase
 const app = initializeApp(firebaseConfig);
 
+// Exporta Auth e Firestore corretos
 export const auth = getAuth(app);
 export const db = getFirestore(app);
