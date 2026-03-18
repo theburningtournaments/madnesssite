@@ -17,39 +17,46 @@ import {
 let currentUser = null;
 let isAdmin = false;
 
-// 🔐 LOGIN
-window.login = async () => {
+/* 🔐 LOGIN GLOBAL */
+window.login = async function () {
   const email = document.getElementById("email")?.value;
   const password = document.getElementById("password")?.value;
 
+  if (!email || !password) return alert("Preenche tudo");
+
   try {
     await signInWithEmailAndPassword(auth, email, password);
-  } catch {
-    alert("Erro no login");
+    alert("Login feito!");
+  } catch (e) {
+    console.error(e);
+    alert("Erro login");
   }
 };
 
-window.logout = async () => {
+window.logout = async function () {
   await signOut(auth);
 };
 
-// 👑 CHECK ADMIN
+/* 👑 CHECK ADMIN */
 async function checkAdmin(uid) {
   const q = query(collection(db, "admins"), where("uid", "==", uid));
   const res = await getDocs(q);
 
   isAdmin = !res.empty;
+
+  console.log("Admin:", isAdmin);
+
   updateUI();
 }
 
-// 🎨 UI ADMIN
+/* 🎨 UPDATE UI */
 function updateUI() {
   document.querySelectorAll(".admin").forEach(el => {
     el.style.display = isAdmin ? "block" : "none";
   });
 }
 
-// 🔄 AUTH STATE
+/* 🔄 AUTH STATE */
 onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUser = user;
@@ -61,9 +68,9 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// 📢 UPDATES
-window.addUpdate = async () => {
-  if (!isAdmin) return alert("Sem permissão");
+/* 📢 UPDATES */
+window.addUpdate = async function () {
+  if (!isAdmin) return;
 
   const text = document.getElementById("updateText").value;
 
@@ -89,9 +96,9 @@ async function loadUpdates() {
 
 loadUpdates();
 
-// ⚔️ PROGRESS
-window.addProgress = async () => {
-  if (!isAdmin) return alert("Sem permissão");
+/* ⚔️ PROGRESS */
+window.addProgress = async function () {
+  if (!isAdmin) return;
 
   await addDoc(collection(db, "progress"), {
     boss: bossName.value,
@@ -121,9 +128,9 @@ async function loadProgress() {
 
 loadProgress();
 
-// 💰 LOOT
-window.addLoot = async () => {
-  if (!isAdmin) return alert("Sem permissão");
+/* 💰 LOOT */
+window.addLoot = async function () {
+  if (!isAdmin) return;
 
   await addDoc(collection(db, "loot"), {
     player: player.value,
@@ -153,8 +160,8 @@ async function loadLoot() {
 
 loadLoot();
 
-// 🎫 SUPPORT
-window.sendTicket = async () => {
+/* 🎫 SUPPORT */
+window.sendTicket = async function () {
   await addDoc(collection(db, "tickets"), {
     text: ticketText.value,
     date: new Date()
