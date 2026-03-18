@@ -1,5 +1,5 @@
 body {
-  font-family: "Arial", sans-serif;
+  font-family: Arial, sans-serif;
   background-color: #1c1c1c;
   color: #f0f0f0;
   margin: 0; padding: 0;
@@ -13,18 +13,23 @@ header {
   align-items: center;
 }
 
+input, select, textarea {
+  padding: 5px;
+  margin: 3px;
+  border-radius: 4px;
+  border: none;
+}
+
 button {
+  padding: 6px 12px;
+  border-radius: 5px;
+  border: none;
   background-color: #5e3c1c;
   color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 6px 12px;
   cursor: pointer;
 }
 
 button:hover { background-color: #a56d32; }
-
-input, select, textarea { padding: 5px; border-radius: 4px; border: none; margin: 3px 0; }
 
 .card {
   background-color: #2a2a2a;
