@@ -17,8 +17,6 @@ let isAdmin = false;
 
 /* ========================= */
 /* 🔐 LOGIN */
-/* ========================= */
-
 window.login = async function () {
   const email = document.getElementById("email")?.value;
   const password = document.getElementById("password")?.value;
@@ -52,28 +50,29 @@ window.login = async function () {
   }
 };
 
+/* 🔓 LOGOUT */
 window.logout = async function () {
   await signOut(auth);
+  alert("Logout feito");
 };
 
 /* ========================= */
 /* 👑 CHECK ADMIN */
-/* ========================= */
-
 async function checkAdmin(uid) {
   try {
-    const data = await getDocs(collection(db, "admins"));
+    // 🔹 Coleção admins correta
+    const adminCollection = collection(db, "admins");
+    const adminSnapshot = await getDocs(adminCollection);
 
     isAdmin = false;
 
-    data.forEach(doc => {
+    adminSnapshot.forEach(doc => {
       if (doc.data().uid === uid) {
         isAdmin = true;
       }
     });
 
     console.log("👑 Is Admin:", isAdmin);
-
     updateUI();
 
   } catch (e) {
@@ -83,8 +82,6 @@ async function checkAdmin(uid) {
 
 /* ========================= */
 /* 🎨 UI ADMIN */
-/* ========================= */
-
 function updateUI() {
   document.querySelectorAll(".admin").forEach(el => {
     el.style.display = isAdmin ? "block" : "none";
@@ -93,8 +90,6 @@ function updateUI() {
 
 /* ========================= */
 /* 🔄 AUTH STATE */
-/* ========================= */
-
 onAuthStateChanged(auth, (user) => {
   if (user) {
     console.log("👤 User:", user.email);
@@ -114,13 +109,10 @@ onAuthStateChanged(auth, (user) => {
 
 /* ========================= */
 /* 📢 UPDATES */
-/* ========================= */
-
 window.addUpdate = async function () {
   if (!isAdmin) return alert("Sem permissão");
 
   const text = document.getElementById("updateText").value;
-
   if (!text) return alert("Escreve algo");
 
   await addDoc(collection(db, "updates"), {
@@ -137,7 +129,6 @@ async function loadUpdates() {
   if (!list) return;
 
   const data = await getDocs(collection(db, "updates"));
-
   list.innerHTML = "";
 
   data.forEach(doc => {
@@ -149,8 +140,6 @@ loadUpdates();
 
 /* ========================= */
 /* ⚔️ PROGRESS */
-/* ========================= */
-
 window.addProgress = async function () {
   if (!isAdmin) return alert("Sem permissão");
 
@@ -174,17 +163,11 @@ async function loadProgress() {
   if (!list) return;
 
   const data = await getDocs(collection(db, "progress"));
-
   list.innerHTML = "";
 
   data.forEach(doc => {
     const d = doc.data();
-
-    list.innerHTML += `
-      <div class="card">
-        ${d.boss} - ${d.pulls} pulls - ${d.killed ? "Dead" : "Alive"}
-      </div>
-    `;
+    list.innerHTML += `<div class="card">${d.boss} - ${d.pulls} pulls - ${d.killed ? "Dead" : "Alive"}</div>`;
   });
 }
 
@@ -192,8 +175,6 @@ loadProgress();
 
 /* ========================= */
 /* 💰 LOOT */
-/* ========================= */
-
 window.addLoot = async function () {
   if (!isAdmin) return alert("Sem permissão");
 
@@ -216,17 +197,11 @@ async function loadLoot() {
   if (!list) return;
 
   const data = await getDocs(collection(db, "loot"));
-
   list.innerHTML = "";
 
   data.forEach(doc => {
     const d = doc.data();
-
-    list.innerHTML += `
-      <div class="card">
-        ${d.player} recebeu ${d.loot}
-      </div>
-    `;
+    list.innerHTML += `<div class="card">${d.player} recebeu ${d.loot}</div>`;
   });
 }
 
@@ -234,11 +209,8 @@ loadLoot();
 
 /* ========================= */
 /* 🎫 SUPPORT */
-/* ========================= */
-
 window.sendTicket = async function () {
   const text = document.getElementById("ticketText").value;
-
   if (!text) return alert("Escreve algo");
 
   await addDoc(collection(db, "tickets"), {
@@ -247,6 +219,5 @@ window.sendTicket = async function () {
   });
 
   document.getElementById("ticketText").value = "";
-
   alert("Ticket enviado!");
 };
