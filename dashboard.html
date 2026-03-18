@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>Guild Dashboard</h1>
+
+  <p id="user-email"></p>
+
+  <button id="logout">Logout</button>
+
+  <hr>
+
+  <h3>Adicionar membro</h3>
+  <input type="text" id="nome" placeholder="Nome do membro">
+  <button id="add">Adicionar</button>
+
+  <ul id="lista"></ul>
+</div>
+
+<script type="module">
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const logoutBtn = document.getElementById("logout");
+const addBtn = document.getElementById("add");
+const lista = document.getElementById("lista");
+
+// Verificar login
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+  } else {
+    document.getElementById("user-email").innerText = user.email;
+    carregarMembros();
+  }
+});
+
+// Logout
+logoutBtn.addEventListener("click", () => {
+  signOut(auth).then(() => {
+    window.location.href = "login.html";
+  });
+});
+
+// Adicionar membro
+addBtn.addEventListener("click", async () => {
+  const nome = document.getElementById("nome").value;
+
+  if (!nome) return;
+
+  await addDoc(collection(db, "membros"), {
+    nome: nome,
+    criadoEm: new Date()
+  });
+
+  carregarMembros();
+});
+
+// Carregar membros
+async function carregarMembros() {
+  lista.innerHTML = "";
+
+  const querySnapshot = await getDocs(collection(db, "membros"));
+
+  querySnapshot.forEach((doc) => {
+    const li = document.createElement("li");
+    li.textContent = doc.data().nome;
+    lista.appendChild(li);
+  });
+}
+</script>
+
+</body>
+</html>
