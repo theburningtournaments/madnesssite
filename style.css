@@ -1,48 +1,65 @@
 body {
   margin: 0;
-  background: url("https://i.imgur.com/3ZQ3Z4R.jpg");
-  background-size: cover;
-  color: #d4af37;
-  font-family: serif;
+  background: #0b0f14;
+  color: #e6c36a;
+  font-family: "Cinzel", serif;
 }
 
 header {
   display: flex;
   justify-content: space-between;
-  padding: 15px;
-  background: rgba(0,0,0,0.8);
-  border-bottom: 2px solid gold;
+  padding: 15px 30px;
+  background: #11161d;
+  border-bottom: 2px solid #c9a44c;
+}
+
+h1 {
+  margin: 0;
 }
 
 nav {
   display: flex;
   gap: 20px;
-  padding: 10px;
-  background: rgba(0,0,0,0.7);
+  padding: 12px 30px;
+  background: #0f141a;
 }
 
 nav a {
-  color: gold;
+  color: #e6c36a;
   text-decoration: none;
+  font-weight: bold;
 }
 
 section {
-  padding: 20px;
-  background: rgba(0,0,0,0.8);
-  margin: 20px;
-  border: 1px solid gold;
-}
-
-button {
-  background: black;
-  border: 1px solid gold;
-  color: gold;
-  padding: 5px 10px;
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 25px;
+  background: #121821;
+  border-radius: 8px;
 }
 
 input, textarea {
-  background: black;
-  border: 1px solid gold;
-  color: gold;
-  margin: 5px;
+  width: 100%;
+  background: #0b0f14;
+  border: 1px solid #2a2f36;
+  color: #e6c36a;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+button {
+  margin-top: 10px;
+  background: #1a222c;
+  border: 1px solid #c9a44c;
+  color: #e6c36a;
+  padding: 8px;
+}
+
+.admin {
+  display: none;
+}
+
+.card {
+  border-bottom: 1px solid #2a2f36;
+  padding: 10px 0;
 }
