@@ -1,40 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-  <title>Info</title>
+  <meta charset="UTF-8">
+  <title>Guild Madness</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-  <h1>MADNESS GUILD</h1>
-
-  <div>
-    <input id="email" placeholder="Email">
-    <input id="password" type="password">
+  <!-- LOGIN -->
+  <div id="loginForm">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
     <button onclick="login()">Login</button>
     <button onclick="logout()">Logout</button>
   </div>
-</header>
 
-<nav>
-  <a href="index.html">Info</a>
-  <a href="progress.html">Progress</a>
-  <a href="loot.html">Loot</a>
-  <a href="support.html">Support</a>
-</nav>
-
-<section>
-  <h2>Updates</h2>
-
+  <!-- UPDATES -->
   <div class="admin">
-    <textarea id="updateText"></textarea>
-    <button onclick="addUpdate()">Post</button>
+    <textarea id="updateText" placeholder="Nova update"></textarea>
+    <button onclick="addUpdate()">Adicionar Update</button>
+  </div>
+  <div id="updatesList"></div>
+
+  <!-- PROGRESS -->
+  <div class="admin">
+    <input type="text" id="bossName" placeholder="Boss">
+    <input type="number" id="pulls" placeholder="Pulls">
+    <label>Mortos? <input type="checkbox" id="killed"></label>
+    <button onclick="addProgress()">Adicionar Progress</button>
+  </div>
+  <div id="progressList"></div>
+
+  <!-- LOOT -->
+  <div class="admin">
+    <input type="text" id="player" placeholder="Player">
+    <input type="text" id="lootItem" placeholder="Loot">
+    <button onclick="addLoot()">Adicionar Loot</button>
+  </div>
+  <div id="lootList"></div>
+
+  <!-- SUPPORT -->
+  <div class="admin">
+    <textarea id="ticketText" placeholder="Ticket/ideia"></textarea>
+    <button onclick="sendTicket()">Enviar Ticket</button>
   </div>
 
-  <div id="updatesList"></div>
-</section>
-
-<script type="module" src="app.js"></script>
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
