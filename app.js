@@ -9,15 +9,16 @@ import {
 import {
   collection,
   addDoc,
-  getDocs,
-  query,
-  where
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 let currentUser = null;
 let isAdmin = false;
 
-/* 🔐 LOGIN (FIX + DEBUG) */
+/* ========================= */
+/* 🔐 LOGIN */
+/* ========================= */
+
 window.login = async function () {
   const email = document.getElementById("email")?.value;
   const password = document.getElementById("password")?.value;
@@ -31,10 +32,9 @@ window.login = async function () {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
     console.log("✅ LOGIN OK:", userCredential.user);
-    alert("Login feito com sucesso!");
 
   } catch (e) {
-    console.error("❌ ERRO FIREBASE:", e);
+    console.error("❌ ERRO:", e);
 
     if (e.code === "auth/user-not-found") {
       alert("Utilizador não existe");
@@ -44,52 +44,67 @@ window.login = async function () {
       alert("Email inválido");
     } else if (e.code === "auth/invalid-credential") {
       alert("Credenciais inválidas");
+    } else if (e.code === "auth/quota-exceeded") {
+      alert("Muitas tentativas. Espera um pouco ou muda de rede.");
     } else {
       alert("Erro: " + e.code);
     }
   }
 };
 
-/* 🔓 LOGOUT */
 window.logout = async function () {
   await signOut(auth);
-  alert("Logout feito");
 };
 
+/* ========================= */
 /* 👑 CHECK ADMIN */
+/* ========================= */
+
 async function checkAdmin(uid) {
   try {
-    const q = query(collection(db, "admins"), where("uid", "==", uid));
-    const res = await getDocs(q);
+    const data = await getDocs(collection(db, "admins"));
 
-    isAdmin = !res.empty;
+    isAdmin = false;
+
+    data.forEach(doc => {
+      if (doc.data().uid === uid) {
+        isAdmin = true;
+      }
+    });
 
     console.log("👑 Is Admin:", isAdmin);
 
     updateUI();
 
   } catch (e) {
-    console.error("Erro ao verificar admin:", e);
+    console.error("Erro admin:", e);
   }
 }
 
-/* 🎨 CONTROLAR UI ADMIN */
+/* ========================= */
+/* 🎨 UI ADMIN */
+/* ========================= */
+
 function updateUI() {
   document.querySelectorAll(".admin").forEach(el => {
     el.style.display = isAdmin ? "block" : "none";
   });
 }
 
-/* 🔄 DETECTAR LOGIN */
+/* ========================= */
+/* 🔄 AUTH STATE */
+/* ========================= */
+
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    console.log("👤 User logged:", user.email);
+    console.log("👤 User:", user.email);
+    console.log("🆔 UID:", user.uid);
 
     currentUser = user;
     checkAdmin(user.uid);
 
   } else {
-    console.log("🚪 User logged out");
+    console.log("🚪 Logout");
 
     currentUser = null;
     isAdmin = false;
