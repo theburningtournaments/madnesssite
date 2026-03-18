@@ -28,12 +28,9 @@ window.login = async function () {
 
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-
     console.log("✅ LOGIN OK:", userCredential.user);
-
   } catch (e) {
     console.error("❌ ERRO:", e);
-
     if (e.code === "auth/user-not-found") {
       alert("Utilizador não existe");
     } else if (e.code === "auth/wrong-password") {
@@ -60,12 +57,11 @@ window.logout = async function () {
 /* 👑 CHECK ADMIN */
 async function checkAdmin(uid) {
   try {
-    // 🔹 Coleção admins correta
+    // ✅ Coleção admins correta
     const adminCollection = collection(db, "admins");
     const adminSnapshot = await getDocs(adminCollection);
 
     isAdmin = false;
-
     adminSnapshot.forEach(doc => {
       if (doc.data().uid === uid) {
         isAdmin = true;
