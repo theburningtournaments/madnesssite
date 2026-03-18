@@ -29,6 +29,12 @@ window.login = async function () {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     console.log("✅ LOGIN OK:", userCredential.user);
+
+    // Qualquer login válido é admin
+    isAdmin = true;
+    currentUser = userCredential.user;
+    updateUI();
+
   } catch (e) {
     console.error("❌ ERRO:", e);
     if (e.code === "auth/user-not-found") {
@@ -50,34 +56,14 @@ window.login = async function () {
 /* 🔓 LOGOUT */
 window.logout = async function () {
   await signOut(auth);
+  isAdmin = false;
+  currentUser = null;
+  updateUI();
   alert("Logout feito");
 };
 
 /* ========================= */
-/* 👑 CHECK ADMIN */
-async function checkAdmin(uid) {
-  try {
-    // ✅ Coleção admins correta
-    const adminCollection = collection(db, "admins");
-    const adminSnapshot = await getDocs(adminCollection);
-
-    isAdmin = false;
-    adminSnapshot.forEach(doc => {
-      if (doc.data().uid === uid) {
-        isAdmin = true;
-      }
-    });
-
-    console.log("👑 Is Admin:", isAdmin);
-    updateUI();
-
-  } catch (e) {
-    console.error("Erro admin:", e);
-  }
-}
-
-/* ========================= */
-/* 🎨 UI ADMIN */
+/* 🎨 UI */
 function updateUI() {
   document.querySelectorAll(".admin").forEach(el => {
     el.style.display = isAdmin ? "block" : "none";
@@ -92,11 +78,10 @@ onAuthStateChanged(auth, (user) => {
     console.log("🆔 UID:", user.uid);
 
     currentUser = user;
-    checkAdmin(user.uid);
-
+    isAdmin = true; // Qualquer login válido mostra os botões
+    updateUI();
   } else {
     console.log("🚪 Logout");
-
     currentUser = null;
     isAdmin = false;
     updateUI();
