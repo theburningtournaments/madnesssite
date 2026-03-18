@@ -13,10 +13,6 @@ header {
   border-bottom: 2px solid #c9a44c;
 }
 
-h1 {
-  margin: 0;
-}
-
 nav {
   display: flex;
   gap: 20px;
@@ -53,10 +49,17 @@ button {
   border: 1px solid #c9a44c;
   color: #e6c36a;
   padding: 8px;
+  cursor: pointer;
 }
 
+button:hover {
+  background: #c9a44c;
+  color: black;
+}
+
+/* 🔒 ADMIN ESCONDIDO */
 .admin {
-  display: none;
+  display: none !important;
 }
 
 .card {
