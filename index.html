@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Madness Guild - Info</title>
+  <title>Info</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -9,25 +9,28 @@
 <header>
   <h1>MADNESS GUILD</h1>
 
-  <div id="login-area">
+  <div>
     <input id="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
+    <input id="password" type="password">
     <button onclick="login()">Login</button>
+    <button onclick="logout()">Logout</button>
   </div>
 </header>
 
 <nav>
   <a href="index.html">Info</a>
   <a href="progress.html">Progress</a>
-  <a href="loot.html">Loot Log</a>
+  <a href="loot.html">Loot</a>
   <a href="support.html">Support</a>
 </nav>
 
 <section>
   <h2>Updates</h2>
 
-  <textarea id="updateText"></textarea>
-  <button onclick="addUpdate()">Post Update</button>
+  <div class="admin">
+    <textarea id="updateText"></textarea>
+    <button onclick="addUpdate()">Post</button>
+  </div>
 
   <div id="updatesList"></div>
 </section>
