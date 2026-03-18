@@ -1,0 +1,48 @@
+body {
+  margin: 0;
+  background: url("https://i.imgur.com/3ZQ3Z4R.jpg");
+  background-size: cover;
+  color: #d4af37;
+  font-family: serif;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  background: rgba(0,0,0,0.8);
+  border-bottom: 2px solid gold;
+}
+
+nav {
+  display: flex;
+  gap: 20px;
+  padding: 10px;
+  background: rgba(0,0,0,0.7);
+}
+
+nav a {
+  color: gold;
+  text-decoration: none;
+}
+
+section {
+  padding: 20px;
+  background: rgba(0,0,0,0.8);
+  margin: 20px;
+  border: 1px solid gold;
+}
+
+button {
+  background: black;
+  border: 1px solid gold;
+  color: gold;
+  padding: 5px 10px;
+}
+
+input, textarea {
+  background: black;
+  border: 1px solid gold;
+  color: gold;
+  margin: 5px;
+}
