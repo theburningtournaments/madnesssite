@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="nav">...</div>
+
+<div class="container">
+  <h1>Loot Log</h1>
+
+  <div id="admin"></div>
+  <div id="loot"></div>
+</div>
+
+<script type="module">
+import { db } from "./firebase.js";
+import { collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { isAdmin } from "./auth.js";
+
+if (isAdmin()) {
+  admin.innerHTML = `
+    <div class="card">
+      <input id="player" placeholder="Player">
+      <input id="item" placeholder="Loot">
+      <input id="raid" placeholder="Raid">
+      <button id="add">Adicionar</button>
+    </div>
+  `;
+
+  add.onclick = async () => {
+    await addDoc(collection(db, "loot"), {
+      player: player.value,
+      item: item.value,
+      raid: raid.value,
+      date: new Date()
+    });
+    location.reload();
+  };
+}
+
+async function load() {
+  const snap = await getDocs(collection(db, "loot"));
+  snap.forEach(doc => {
+    const l = doc.data();
+    loot.innerHTML += `
+      <div class="card">
+        ${l.player} recebeu ${l.item} (${l.raid})
+      </div>
+    `;
+  });
+}
+
+load();
+</script>
+
+</body>
+</html>
