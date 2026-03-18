@@ -1,51 +1,31 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <title>Guild Madness</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Guild Madness - Info</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- LOGIN -->
+<header>
+  <h1>Guild Madness - Info</h1>
   <div id="loginForm">
     <input type="email" id="email" placeholder="Email">
     <input type="password" id="password" placeholder="Password">
     <button onclick="login()">Login</button>
     <button onclick="logout()">Logout</button>
   </div>
+</header>
 
-  <!-- UPDATES -->
+<section>
+  <h2>Updates</h2>
   <div class="admin">
     <textarea id="updateText" placeholder="Nova update"></textarea>
     <button onclick="addUpdate()">Adicionar Update</button>
   </div>
   <div id="updatesList"></div>
+</section>
 
-  <!-- PROGRESS -->
-  <div class="admin">
-    <input type="text" id="bossName" placeholder="Boss">
-    <input type="number" id="pulls" placeholder="Pulls">
-    <label>Mortos? <input type="checkbox" id="killed"></label>
-    <button onclick="addProgress()">Adicionar Progress</button>
-  </div>
-  <div id="progressList"></div>
-
-  <!-- LOOT -->
-  <div class="admin">
-    <input type="text" id="player" placeholder="Player">
-    <input type="text" id="lootItem" placeholder="Loot">
-    <button onclick="addLoot()">Adicionar Loot</button>
-  </div>
-  <div id="lootList"></div>
-
-  <!-- SUPPORT -->
-  <div class="admin">
-    <textarea id="ticketText" placeholder="Ticket/ideia"></textarea>
-    <button onclick="sendTicket()">Enviar Ticket</button>
-  </div>
-
-  <script type="module" src="firebase.js"></script>
-  <script type="module" src="app.js"></script>
+<script type="module" src="firebase.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
