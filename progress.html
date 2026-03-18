@@ -8,23 +8,24 @@
 
 <header>
   <h1>MADNESS GUILD</h1>
-  <div id="login-area"></div>
 </header>
 
 <nav>
   <a href="index.html">Info</a>
   <a href="progress.html">Progress</a>
-  <a href="loot.html">Loot Log</a>
+  <a href="loot.html">Loot</a>
   <a href="support.html">Support</a>
 </nav>
 
 <section>
-  <h2>Raid Progress</h2>
+  <h2>Progress</h2>
 
-  <input id="bossName" placeholder="Boss">
-  <input id="pulls" type="number" placeholder="Pulls">
-  <label>Dead <input type="checkbox" id="killed"></label>
-  <button onclick="addProgress()">Add</button>
+  <div class="admin">
+    <input id="bossName">
+    <input id="pulls" type="number">
+    <label>Dead <input type="checkbox" id="killed"></label>
+    <button onclick="addProgress()">Add</button>
+  </div>
 
   <div id="progressList"></div>
 </section>
