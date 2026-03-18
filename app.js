@@ -30,9 +30,9 @@ window.login = async function () {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     console.log("✅ LOGIN OK:", userCredential.user);
 
-    // Qualquer login válido é admin
-    isAdmin = true;
+    // Qualquer login válido é considerado admin
     currentUser = userCredential.user;
+    isAdmin = true;
     updateUI();
 
   } catch (e) {
@@ -43,10 +43,8 @@ window.login = async function () {
       alert("Password errada");
     } else if (e.code === "auth/invalid-email") {
       alert("Email inválido");
-    } else if (e.code === "auth/invalid-credential") {
-      alert("Credenciais inválidas");
     } else if (e.code === "auth/quota-exceeded") {
-      alert("Muitas tentativas. Espera um pouco ou muda de rede.");
+      alert("Muitas tentativas. Espera ou muda de rede.");
     } else {
       alert("Erro: " + e.code);
     }
@@ -56,14 +54,14 @@ window.login = async function () {
 /* 🔓 LOGOUT */
 window.logout = async function () {
   await signOut(auth);
-  isAdmin = false;
   currentUser = null;
+  isAdmin = false;
   updateUI();
-  alert("Logout feito");
+  alert("Logout feito!");
 };
 
 /* ========================= */
-/* 🎨 UI */
+/* 🎨 UPDATE UI */
 function updateUI() {
   document.querySelectorAll(".admin").forEach(el => {
     el.style.display = isAdmin ? "block" : "none";
@@ -78,10 +76,9 @@ onAuthStateChanged(auth, (user) => {
     console.log("🆔 UID:", user.uid);
 
     currentUser = user;
-    isAdmin = true; // Qualquer login válido mostra os botões
+    isAdmin = true; // qualquer login válido mostra os botões
     updateUI();
   } else {
-    console.log("🚪 Logout");
     currentUser = null;
     isAdmin = false;
     updateUI();
