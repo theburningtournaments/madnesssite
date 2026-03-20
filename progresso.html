@@ -126,18 +126,18 @@ const db = getFirestore(app);
 const isAdmin = localStorage.getItem("admin") === "true";
 
 const raids=[
-  { id:"dreamrift", name:"The Dreamrift", bosses:[{id:"chimaerus",name:"Chimaerus",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_misc_monsterhead_04.jpg"}]},
+  { id:"dreamrift", name:"The Dreamrift", bosses:[{id:"chimaerus",name:"Chimaerus",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_120_raid_dreamwell_malformedmanifestation.jpg"}]},
   { id:"voidspire", name:"The Voidspire", bosses:[
     {id:"averzian",name:"Averzian",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_120_raid_voidspire_hostgeneral.jpg"},
-    {id:"vorasius",name:"Vorasius",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_vorasius.jpg"},
-    {id:"fallenking",name:"Fallen King",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_fallenking.jpg"},
-    {id:"vaelgor",name:"Vaelgor & Ezzorak",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_vaelgor.jpg"},
-    {id:"vanguard",name:"Lightblinded Vanguard",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_vanguard.jpg"},
-    {id:"cosmo",name:"Crown of the Cosmos",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_cosmo.jpg"}
+    {id:"vorasius",name:"Vorasius",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_120_raid_voidspire_kaiju.jpg"},
+    {id:"fallenking",name:"Fallen King",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_120_raid_voidspire_salhadaar.jpg"},
+    {id:"vaelgor",name:"Vaelgor & Ezzorak",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_120_raid_voidspire_dragonduo.jpg"},
+    {id:"vanguard",name:"Lightblinded Vanguard",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_120_raid_voidspire_paladintrio.jpg"},
+    {id:"cosmo",name:"Crown of the Cosmos",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_120_raid_voidspire_alleria.jpg"}
   ]},
   { id:"quelthanas", name:"March on Quel'Danas", bosses:[
-    {id:"beloren",name:"Belo'ren, Child of Al'ar",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_beloren.jpg"},
-    {id:"midnight",name:"Midnight Falls",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_midnightfalls.jpg"}
+    {id:"beloren",name:"Belo'ren, Child of Al'ar",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_120_raid_marchonqueldanas_lightvoidphoenix.jpg"},
+    {id:"midnight",name:"Midnight Falls",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_120_raid_marchonqueldanas_lura.jpg"}
   ]}
 ];
 
