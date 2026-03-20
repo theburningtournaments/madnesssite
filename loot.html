@@ -7,9 +7,14 @@
 </head>
 <body>
 
+<header>
+  <h1>Madness Guild</h1>
+  <a href="index.html">⬅ Voltar</a>
+</header>
+
 <h1>Loot</h1>
 
-<input id="search" placeholder="Pesquisar..." onkeyup="search()">
+<input id="search" placeholder="Pesquisar...">
 
 <table border="1" id="table"></table>
 
@@ -44,15 +49,16 @@ function render(list){
   });
 }
 
-window.search = function(){
+render(data);
+
+document.getElementById("search").onkeyup = () => {
   const v = search.value.toLowerCase();
+
   render(data.filter(l =>
     l.player.toLowerCase().includes(v) ||
     l.item.toLowerCase().includes(v)
   ));
-}
-
-render(data);
+};
 </script>
 
 </body>
