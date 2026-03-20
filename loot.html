@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="style.css">
 <style>
 body{background: linear-gradient(to bottom,#0a0a0a,#111); color:gold; font-family:"Friz Quadrata",Arial,sans-serif; margin:0; padding:0;}
-.navbar{position:fixed;top:0;width:100%;background:#111 url('https://i.imgur.com/xXnP0hw.png') repeat-x;color:gold;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:1000;border-bottom:3px solid gold;}
+.navbar{position:fixed;top:0;width:100%;background:#111;color:gold;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:1000;border-bottom:3px solid gold;}
 .navbar .links a{color:gold;margin-left:15px;text-decoration:none;font-weight:bold;transition:0.3s;}
 .navbar .links a:hover{color:#ffd700;text-shadow:0 0 5px #ffd700;}
 .container{margin-top:70px;padding:20px;}
@@ -48,8 +48,14 @@ import { getFirestore, collection, getDocs } from "https://www.gstatic.com/fireb
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
 const isAdmin = localStorage.getItem("admin")==="true";
-if(isAdmin) importBtn.style.display="inline-block";
+if(isAdmin){
+    importBtn.style.display="inline-block";
+    importBtn.onclick = ()=>alert("Função Importar Excel será implementada com XLSX.js");
+}else{
+    importBtn.style.display="none";
+}
 
 const data=[];
 const snap = await getDocs(collection(db,"loot"));
@@ -66,8 +72,6 @@ function render(list){
 render(data);
 
 search.onkeyup = ()=>render(data.filter(l=>l.player.toLowerCase().includes(search.value.toLowerCase()) || l.item.toLowerCase().includes(search.value.toLowerCase())));
-
-importBtn.onclick = ()=>alert("Import Excel apenas para admins (implementar XLSX.js)");
 </script>
 </body>
 </html>
