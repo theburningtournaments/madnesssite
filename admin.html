@@ -1,18 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Admin - Madness</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body{background:#0b0b0b;color:gold;font-family:Arial,sans-serif;margin:0;padding:0;}
+.navbar{position:fixed;top:0;width:100%;background:#111;color:gold;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:1000;}
+.navbar .links a{color:gold;margin-left:15px;text-decoration:none;font-weight:bold;}
+.container{margin-top:70px;padding:20px;}
+.card{background:#1c1c1c;padding:15px;margin-bottom:20px;border-radius:8px;border:1px solid gold;}
+button,input{margin:3px;padding:5px;border-radius:5px;background:#111;color:gold;border:1px solid gold;}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="logo">MADNESS</div>
+  <div class="links">
+    <a href="index.html">Informações</a>
+    <a href="progresso.html">Progresso</a>
+    <a href="loot.html">Loot</a>
+    <a href="admin.html">Admin</a>
+  </div>
+</div>
+
 <div class="container">
 
 <div id="dashboard" class="card" style="display:none;">
-  <h2>Dashboard Admin</h2>
-  <button id="logoutBtn">Logout</button>
-
-  <p>Total de Posts publicados: <span id="totalPosts">0</span></p>
-  <p>Total de Loot registrados: <span id="totalLoot">0</span></p>
+<h2>Dashboard Admin</h2>
+<button id="logoutBtn">Logout</button>
+<p>Total de Posts publicados: <span id="totalPosts">0</span></p>
+<p>Total de Loot registrados: <span id="totalLoot">0</span></p>
 </div>
 
 <div id="loginBox" class="card">
-  <h2>Login Admin</h2>
-  <input id="email" placeholder="Email">
-  <input id="pass" type="password" placeholder="Password">
-  <button id="loginBtn">Login</button>
+<h2>Login Admin</h2>
+<input id="email" placeholder="Email">
+<input id="pass" type="password" placeholder="Password">
+<button id="loginBtn">Login</button>
 </div>
 
 </div>
@@ -26,9 +52,6 @@ import { getFirestore, collection, getDocs } from "https://www.gstatic.com/fireb
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
-const loginBox = document.getElementById("loginBox");
-const dashboard = document.getElementById("dashboard");
 
 if(localStorage.getItem("admin")){
   loginBox.style.display="none";
@@ -54,8 +77,4 @@ logoutBtn.onclick=()=>{
 
 async function updateStats(){
   const postsSnap = await getDocs(collection(db,"posts"));
-  const lootSnap = await getDocs(collection(db,"loot"));
-  totalPosts.innerText = postsSnap.size;
-  totalLoot.innerText = lootSnap.size;
-}
-</script>
+  const lootSnap = await getDocs(collection(db,"loot
