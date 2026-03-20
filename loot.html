@@ -4,83 +4,22 @@
 <meta charset="UTF-8">
 <title>Loot - Madness</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-body{
-  background: linear-gradient(to bottom,#0a0a0a,#111); 
-  color: gold; 
-  font-family:"Friz Quadrata",Arial,sans-serif; 
-  margin:0; padding:0;
-}
-.navbar{
-  position:fixed;
-  top:0;
-  width:100%;
-  background:#111;
-  color:gold;
-  padding:10px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  z-index:1000;
-  border-bottom:3px solid gold;
-}
-.navbar .links a{
-  color:gold;
-  margin-left:15px;
-  text-decoration:none;
-  font-weight:bold;
-  transition:0.3s;
-}
-.navbar .links a:hover{
-  color:#ffd700;
-  text-shadow:0 0 5px #ffd700;
-}
-.container{
-  margin-top:70px;
-  padding:20px;
-}
-.card{
-  background: linear-gradient(145deg,#1b1b1b,#111);
-  padding:20px;
-  margin-bottom:20px;
-  border-radius:10px;
-  border:2px solid gold;
-  box-shadow: 0 0 15px rgba(255,215,0,0.2);
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-}
-th,td{
-  padding:8px;
-  text-align:left;
-  border-bottom:1px solid gold;
-}
+body{background: linear-gradient(to bottom,#0a0a0a,#111); color: gold; font-family:"Friz Quadrata",Arial,sans-serif; margin:0; padding:0;}
+.navbar{position:fixed;top:0;width:100%;background:#111;color:gold;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:1000;border-bottom:3px solid gold;}
+.navbar .links a{color:gold;margin-left:15px;text-decoration:none;font-weight:bold;transition:0.3s;}
+.navbar .links a:hover{color:#ffd700;text-shadow:0 0 5px #ffd700;}
+.container{margin-top:70px;padding:20px;}
+.card{background: linear-gradient(145deg,#1b1b1b,#111);padding:20px;margin-bottom:20px;border-radius:10px;border:2px solid gold;box-shadow: 0 0 15px rgba(255,215,0,0.2);}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+th,td{padding:8px;text-align:left;border-bottom:1px solid gold;}
 th{background:#222;}
 tr:nth-child(even){background:#1c1c1c;}
 tr:nth-child(odd){background:#111;}
-input{
-  padding:5px;
-  border-radius:5px;
-  background:#111;
-  color:gold;
-  border:1px solid gold;
-  margin-right:10px;
-}
-button{
-  padding:5px 10px;
-  border-radius:5px;
-  background:#111;
-  color:gold;
-  border:1px solid gold;
-  cursor:pointer;
-  transition:0.3s;
-}
-button:hover{
-  background:#222;
-  box-shadow:0 0 8px #ffd700;
-}
+input{padding:5px;border-radius:5px;background:#111;color:gold;border:1px solid gold;margin-right:10px;}
+button{padding:5px 10px;border-radius:5px;background:#111;color:gold;border:1px solid gold;cursor:pointer;transition:0.3s;}
+button:hover{background:#222;box-shadow:0 0 8px #ffd700;}
 </style>
 </head>
 <body>
@@ -96,8 +35,9 @@ button:hover{
 </div>
 
 <div class="container">
-  <div class="card" id="lootCard">
+  <div class="card">
     <input id="search" placeholder="Pesquisar por Player / Item / Tipo / Data" style="width:300px;">
+    <input type="file" id="excelFile" style="display:none;">
     <button id="importBtn" style="display:none;">Importar Excel</button>
     <table id="table"></table>
   </div>
@@ -106,46 +46,85 @@ button:hover{
 <script type="module">
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+let data=[];
 
 // Admin check
 const isAdmin = localStorage.getItem("admin")==="true";
 if(isAdmin){
     importBtn.style.display="inline-block";
-    importBtn.onclick = ()=>alert("Função Importar Excel será implementada com XLSX.js");
-}else{
-    importBtn.style.display="none";
 }
 
-const data=[];
-const snap = await getDocs(collection(db,"loot"));
-snap.forEach(doc=>data.push(doc.data()));
+// Carregar loot existente do Firebase
+async function loadLoot(){
+    data=[];
+    const snap = await getDocs(collection(db,"loot"));
+    snap.forEach(doc=>data.push(doc.data()));
+    render(data);
+}
 
+loadLoot();
+
+// Render tabela
 function render(list){
-  table.innerHTML="<tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th></tr>";
-  list.forEach(l=>{
-    table.innerHTML+=`<tr>
-      <td>${l.player}</td>
-      <td>${l.item}</td>
-      <td>${l.type}</td>
-      <td>${l.date}</td>
-    </tr>`;
-  });
+    table.innerHTML="<tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th></tr>";
+    list.forEach(l=>{
+        table.innerHTML+=`<tr>
+            <td>${l.player}</td>
+            <td>${l.item}</td>
+            <td>${l.type}</td>
+            <td>${l.date}</td>
+        </tr>`;
+    });
 }
-render(data);
 
-// Pesquisa completa: player, item, tipo, data
+// Pesquisa por todas as colunas
 search.onkeyup = ()=>{
-  const term = search.value.toLowerCase();
-  render(data.filter(l=>
-    l.player.toLowerCase().includes(term) ||
-    l.item.toLowerCase().includes(term) ||
-    l.type.toLowerCase().includes(term) ||
-    l.date.toLowerCase().includes(term)
-  ));
+    const term = search.value.toLowerCase();
+    render(data.filter(l=>
+        l.player.toLowerCase().includes(term) ||
+        l.item.toLowerCase().includes(term) ||
+        l.type.toLowerCase().includes(term) ||
+        l.date.toLowerCase().includes(term)
+    ));
+};
+
+// Botão importar Excel
+importBtn.onclick = ()=>{
+    excelFile.click();
+};
+
+// Ler arquivo Excel
+excelFile.onchange = async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async (evt)=>{
+        const bstr = evt.target.result;
+        const wb = XLSX.read(bstr, {type:"binary"});
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const json = XLSX.utils.sheet_to_json(ws); // converte para array de objetos
+        for(const row of json){
+            // Espera que o Excel tenha colunas: player, item, type, date
+            if(row.player && row.item && row.type && row.date){
+                data.push(row);
+                await addDoc(collection(db,"loot"),{
+                    player: row.player,
+                    item: row.item,
+                    type: row.type,
+                    date: row.date
+                });
+            }
+        }
+        render(data);
+        alert("Importação concluída!");
+    };
+    reader.readAsBinaryString(file);
 };
 </script>
 </body>
