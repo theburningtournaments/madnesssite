@@ -1,18 +1,40 @@
 body {
   background: #0b0b0b;
-  color: gold;
-  font-family: Arial;
-  text-align: center;
+  color: #c9a44e;
+  font-family: "Cinzel", serif;
 }
 
-nav a {
+header {
+  text-align: center;
+  padding: 20px;
+  border-bottom: 2px solid #c9a44e;
+}
+
+a {
+  color: #c9a44e;
   margin: 10px;
-  color: gold;
   text-decoration: none;
 }
 
-.card {
-  border: 1px solid gold;
-  margin: 10px;
+.box {
+  border: 1px solid #c9a44e;
+  margin: 20px;
+  padding: 15px;
+}
+
+button {
+  background: #5a0f0f;
+  color: white;
+  border: none;
   padding: 10px;
+}
+
+input, textarea, select {
+  margin: 5px;
+  padding: 5px;
+}
+
+.progress-bar {
+  height: 20px;
+  background: green;
 }
