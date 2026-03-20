@@ -1,40 +1,70 @@
 body {
-  background: #0b0b0b;
-  color: #c9a44e;
+  margin: 0;
+  background: url("https://wallpapercave.com/wp/wp2757874.jpg") no-repeat center center fixed;
+  background-size: cover;
   font-family: "Cinzel", serif;
+  color: #f0d36b;
 }
 
 header {
+  background: rgba(0,0,0,0.8);
+  padding: 15px;
   text-align: center;
-  padding: 20px;
   border-bottom: 2px solid #c9a44e;
 }
 
-a {
-  color: #c9a44e;
+header a {
   margin: 10px;
+  color: #f0d36b;
+  font-weight: bold;
   text-decoration: none;
 }
 
-.box {
-  border: 1px solid #c9a44e;
-  margin: 20px;
+header a:hover {
+  color: white;
+}
+
+.container {
+  padding: 20px;
+}
+
+.card {
+  background: rgba(0,0,0,0.75);
+  border: 2px solid #c9a44e;
+  border-radius: 10px;
   padding: 15px;
+  margin: 20px 0;
+  box-shadow: 0 0 10px black;
 }
 
 button {
-  background: #5a0f0f;
-  color: white;
-  border: none;
+  background: linear-gradient(#5a0f0f, #2b0000);
+  border: 1px solid #c9a44e;
+  color: #fff;
   padding: 10px;
+  cursor: pointer;
 }
 
-input, textarea, select {
-  margin: 5px;
-  padding: 5px;
+button:hover {
+  background: #8b1a1a;
+}
+
+.progress-container {
+  background: #222;
+  border: 1px solid gold;
+  height: 20px;
+  border-radius: 5px;
+  overflow: hidden;
 }
 
 .progress-bar {
-  height: 20px;
-  background: green;
+  background: linear-gradient(green, lime);
+  height: 100%;
+}
+
+.boss {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #444;
+  padding: 5px 0;
 }
