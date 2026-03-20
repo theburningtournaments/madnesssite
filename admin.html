@@ -73,6 +73,37 @@ button:hover{
   background:#222;
   box-shadow:0 0 8px #ffd700;
 }
+#loginForm{
+  max-width:400px;
+  margin:100px auto;
+  background:#111;
+  padding:20px;
+  border:2px solid gold;
+  border-radius:10px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+#loginForm input{
+  padding:5px;
+  border-radius:5px;
+  background:#222;
+  color:gold;
+  border:1px solid gold;
+}
+#lootTable{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+#lootTable th, #lootTable td{
+  padding:8px;
+  text-align:left;
+  border-bottom:1px solid gold;
+}
+#lootTable th{background:#222;}
+tr:nth-child(even){background:#1c1c1c;}
+tr:nth-child(odd){background:#111;}
 </style>
 </head>
 <body>
@@ -83,59 +114,112 @@ button:hover{
     <a href="index.html">Informações</a>
     <a href="progresso.html">Progresso</a>
     <a href="loot.html">Loot</a>
-    <a href="#" id="logoutBtn">Logout</a>
+    <a href="#" id="logoutBtn" style="display:none;">Logout</a>
   </div>
 </div>
 
-<div class="container" id="dashboard">
-  <div class="card">
-    <h3>Total de Posts</h3>
-    <p id="totalPosts">0</p>
-  </div>
-  <div class="card">
-    <h3>Total de Loot</h3>
-    <p id="totalLoot">0</p>
-  </div>
-  <div class="card">
-    <h3>Raids Completadas</h3>
-    <p id="raidsCompleted">0</p>
-  </div>
+<!-- Login Form -->
+<div id="loginForm">
+  <h3>Login Admin</h3>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Senha">
+  <button id="loginBtn">Login</button>
 </div>
 
-<div class="container" id="charts">
-  <canvas id="raidChart" width="400" height="200"></canvas>
+<!-- Dashboard -->
+<div id="adminContent" style="display:none;">
+
+  <div class="container" id="dashboard">
+    <div class="card">
+      <h3>Total de Posts</h3>
+      <p id="totalPosts">0</p>
+    </div>
+    <div class="card">
+      <h3>Total de Loot</h3>
+      <p id="totalLoot">0</p>
+    </div>
+    <div class="card">
+      <h3>Raids Completadas</h3>
+      <p id="raidsCompleted">0</p>
+    </div>
+  </div>
+
+  <div class="container" id="charts">
+    <canvas id="raidChart" width="400" height="200"></canvas>
+  </div>
+
+  <!-- Loot CRUD -->
+  <div class="container">
+    <div class="card">
+      <h3>Gerenciar Loot</h3>
+      <input type="text" id="lootPlayer" placeholder="Player">
+      <input type="text" id="lootItem" placeholder="Item">
+      <input type="text" id="lootType" placeholder="Tipo">
+      <input type="date" id="lootDate">
+      <button id="addLootBtn">Adicionar Loot</button>
+      <table id="lootTable">
+        <thead>
+          <tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th><th>Ações</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
 <script type="module">
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Check login
-const isAdmin = localStorage.getItem("admin")==="true";
-if(!isAdmin){
-  alert("Acesso negado. Apenas admins.");
-  window.location.href="index.html";
-}
+const loginForm = document.getElementById("loginForm");
+const adminContent = document.getElementById("adminContent");
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+
+const emailAdmin = "admin@example.com"; // substituir pelo seu email admin
+const passAdmin = "senha123";           // substituir pela sua senha
+
+// Login
+loginBtn.onclick = ()=>{
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
+  if(email===emailAdmin && pass===passAdmin){
+    localStorage.setItem("admin","true");
+    loginForm.style.display="none";
+    adminContent.style.display="block";
+    logoutBtn.style.display="inline-block";
+    loadDashboard();
+    loadLoot();
+  } else alert("Email ou senha incorretos!");
+};
 
 // Logout
 logoutBtn.onclick = ()=>{
   localStorage.removeItem("admin");
-  window.location.href="index.html";
+  window.location.reload();
 };
 
-// Dashboard contagem
+// Check login
+if(localStorage.getItem("admin")==="true"){
+  loginForm.style.display="none";
+  adminContent.style.display="block";
+  logoutBtn.style.display="inline-block";
+  loadDashboard();
+  loadLoot();
+}
+
+// Dashboard
 async function loadDashboard(){
   const postsSnap = await getDocs(collection(db,"posts"));
   const lootSnap = await getDocs(collection(db,"loot"));
-  totalPosts.innerText = postsSnap.size;
-  totalLoot.innerText = lootSnap.size;
+  document.getElementById("totalPosts").innerText = postsSnap.size;
+  document.getElementById("totalLoot").innerText = lootSnap.size;
 
-  // Raids completadas
-  // Supondo coleção progress { raid_boss: { pulls, dead } }
   const raids = ["dreamrift","voidspire","quelthanas"];
   let completed=0;
   for(const raid of raids){
@@ -148,18 +232,17 @@ async function loadDashboard(){
         if(doc.data().dead) killed++;
       }
     });
-    if(killed===total && total>0) completed++;
+    if(total>0 && killed===total) completed++;
   }
-  raidsCompleted.innerText = completed;
+  document.getElementById("raidsCompleted").innerText = completed;
 
-  // Chart de progresso das raids
+  // Gráfico de linhas
   const ctx = document.getElementById('raidChart').getContext('2d');
   const labels = [];
   const progresses = [];
   for(const raid of raids){
     const bossesSnap = await getDocs(collection(db,"progress"));
-    let killed=0;
-    let total=0;
+    let killed=0, total=0;
     bossesSnap.forEach(doc=>{
       if(doc.id.startsWith(raid)){
         total++;
@@ -171,30 +254,65 @@ async function loadDashboard(){
   }
 
   new Chart(ctx,{
-    type:'bar',
+    type:'line',
     data:{
       labels:labels,
       datasets:[{
         label:'Progresso (%)',
         data:progresses,
-        backgroundColor:'gold',
-        borderColor:'#ffd700',
-        borderWidth:2
+        borderColor:'gold',
+        backgroundColor:'rgba(255,215,0,0.2)',
+        tension:0.3,
+        fill:true
       }]
     },
-    options:{
-      responsive:true,
-      scales:{
-        y:{
-          beginAtZero:true,
-          max:100
-        }
-      }
-    }
+    options:{responsive:true, scales:{y:{beginAtZero:true, max:100}}}
   });
 }
 
-loadDashboard();
+// Loot CRUD
+const lootTableBody = document.querySelector("#lootTable tbody");
+const addLootBtn = document.getElementById("addLootBtn");
+
+async function loadLoot(){
+  lootTableBody.innerHTML="";
+  const snap = await getDocs(collection(db,"loot"));
+  snap.forEach(docItem=>{
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${docItem.data().player}</td>
+                     <td>${docItem.data().item}</td>
+                     <td>${docItem.data().type}</td>
+                     <td>${docItem.data().date}</td>
+                     <td><button data-id="${docItem.id}" class="deleteBtn">Excluir</button></td>`;
+    lootTableBody.appendChild(row);
+  });
+
+  // Delete buttons
+  document.querySelectorAll(".deleteBtn").forEach(btn=>{
+    btn.onclick = async ()=>{
+      const id = btn.dataset.id;
+      await deleteDoc(doc(db,"loot",id));
+      alert("Loot excluído!");
+      loadLoot();
+    };
+  });
+}
+
+addLootBtn.onclick = async ()=>{
+  const player = document.getElementById("lootPlayer").value;
+  const item = document.getElementById("lootItem").value;
+  const type = document.getElementById("lootType").value;
+  const date = document.getElementById("lootDate").value;
+  if(!player||!item||!type||!date){ alert("Preencha todos os campos!"); return; }
+  await addDoc(collection(db,"loot"),{player,item,type,date});
+  alert("Loot adicionado!");
+  document.getElementById("lootPlayer").value="";
+  document.getElementById("lootItem").value="";
+  document.getElementById("lootType").value="";
+  document.getElementById("lootDate").value="";
+  loadLoot();
+};
 </script>
+
 </body>
 </html>
