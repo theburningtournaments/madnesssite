@@ -31,63 +31,41 @@ button,input{margin:3px;padding:5px;border-radius:5px;background:#111;color:gold
 </div>
 
 <div class="container">
-<input id="search" placeholder="Pesquisar..." style="width:250px;">
-<button id="importBtn">Importar Excel</button>
-
 <div id="adminLootBox" class="card" style="display:none;">
-<h2>Adicionar Loot (Admin)</h2>
-<input id="lootPlayer" placeholder="Player">
-<input id="lootItem" placeholder="Item">
-<input id="lootType" placeholder="Tipo">
-<button id="addLootBtn">Adicionar Loot</button>
-</div>
-
+<h2>Loot (Admin)</h2>
+<input id="search" placeholder="Pesquisar..." style="width:200px;">
+<button id="importBtn">Importar Excel</button>
 <table id="table"></table>
+</div>
 </div>
 
 <script type="module">
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const isAdmin = localStorage.getItem("admin")==="true";
-if(isAdmin) document.getElementById("adminLootBox").style.display="block";
-
-let data=[];
-const snap = await getDocs(collection(db,"loot"));
-snap.forEach(doc=>data.push(doc.data()));
-
-function render(list){
-  table.innerHTML = `<tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th></tr>`;
-  list.forEach((l,i)=>{
-    table.innerHTML += `<tr>
-      <td>${l.player}</td>
-      <td>${l.item}</td>
-      <td>${l.type}</td>
-      <td>${l.date}</td>
-    </tr>`;
-  });
+if(!isAdmin) {
+  document.getElementById("adminLootBox").innerHTML="<p>Somente admins podem ver o Loot.</p>";
+} else {
+  document.getElementById("adminLootBox").style.display="block";
+  const data=[];
+  const snap=await getDocs(collection(db,"loot"));
+  snap.forEach(doc=>data.push(doc.data()));
+  function render(list){
+    table.innerHTML="<tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th></tr>";
+    list.forEach(l=>{
+      table.innerHTML+=`<tr>
+        <td>${l.player}</td><td>${l.item}</td><td>${l.type}</td><td>${l.date}</td>
+      </tr>`;
+    });
+  }
+  render(data);
+  search.onkeyup=()=>render(data.filter(l=>l.player.toLowerCase().includes(search.value.toLowerCase())||l.item.toLowerCase().includes(search.value.toLowerCase())));
+  importBtn.onclick=()=>alert("Implementar import Excel usando XLSX.js");
 }
-render(data);
-
-search.onkeyup=()=>render(data.filter(l=>l.player.toLowerCase().includes(search.value.toLowerCase())||l.item.toLowerCase().includes(search.value.toLowerCase())));
-
-addLootBtn.onclick=async()=>{
-  await addDoc(collection(db,"loot"),{
-    player: lootPlayer.value,
-    item: lootItem.value,
-    type: lootType.value,
-    date: new Date().toLocaleDateString()
-  });
-  alert("Loot adicionado!");
-  location.reload();
-}
-
-// Função importar Excel (necessita XLSX.js)
-import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.mjs";
-importBtn.onclick=()=>{ alert("Implementar import Excel com XLSX.js"); }
 </script>
 </body>
 </html>
