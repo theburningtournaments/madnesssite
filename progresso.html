@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <title>Progresso - Madness</title>
 <link rel="stylesheet" href="style.css">
+<style>
+body{background:#0b0b0b;color:gold;font-family:Arial,sans-serif;margin:0;padding:0;}
+.navbar{position:fixed;top:0;width:100%;background:#111;color:gold;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:1000;}
+.navbar .links a{color:gold;margin-left:15px;text-decoration:none;font-weight:bold;}
+.container{margin-top:70px;padding:20px;}
+.card{background:#1c1c1c;padding:15px;margin-bottom:20px;border-radius:8px;border:1px solid gold;}
+.boss{display:flex;justify-content:space-between;align-items:center;margin:5px 0;}
+.progress-container{background:#222;border-radius:5px;height:20px;margin-top:10px;}
+.progress-bar{height:100%;background:gold;border-radius:5px;}
+button,input{margin-left:5px;padding:3px;border-radius:5px;background:#111;color:gold;border:1px solid gold;}
+</style>
 </head>
 <body>
 
@@ -18,16 +29,7 @@
 </div>
 
 <div class="container">
-
-  <div id="difficultySelector" class="card">
-    <button onclick="setDifficulty('normal')">Normal</button>
-    <button onclick="setDifficulty('hc')">Heroic</button>
-    <button onclick="setDifficulty('mythic')">Mythic</button>
-  </div>
-
-  <div id="raidButtons" class="card"></div>
   <div id="raidInfo"></div>
-
 </div>
 
 <script type="module">
@@ -39,92 +41,71 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const isAdmin = localStorage.getItem("admin") === "true";
 
-let difficulty = "normal";
-let currentRaidIndex = 0;
-
-const raids = [
-  { id: "dreamrift", name: "The Dreamrift", bosses: [{ id: "chimaerus", name: "Chimaerus", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_chimaerus.jpg" }] },
-  { id: "voidspire", name: "The Voidspire", bosses: [
-    { id: "averzian", name: "Averzian", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_averzian.jpg" },
-    { id: "vorasius", name: "Vorasius", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_vorasius.jpg" },
-    { id: "fallenking", name: "Fallen King", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_fallenking.jpg" },
-    { id: "vaelgor", name: "Vaelgor & Ezzorak", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_vaelgor.jpg" },
-    { id: "vanguard", name: "Lightblinded Vanguard", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_vanguard.jpg" },
-    { id: "cosmo", name: "Crown of the Cosmos", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_cosmo.jpg" }
+const raids=[
+  { id:"dreamrift", name:"The Dreamrift", bosses:[{id:"chimaerus",name:"Chimaerus",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_chimaerus.jpg"}]},
+  { id:"voidspire", name:"The Voidspire", bosses:[
+    {id:"averzian",name:"Averzian",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_averzian.jpg"},
+    {id:"vorasius",name:"Vorasius",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_vorasius.jpg"},
+    {id:"fallenking",name:"Fallen King",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_fallenking.jpg"},
+    {id:"vaelgor",name:"Vaelgor & Ezzorak",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_vaelgor.jpg"},
+    {id:"vanguard",name:"Lightblinded Vanguard",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_vanguard.jpg"},
+    {id:"cosmo",name:"Crown of the Cosmos",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_cosmo.jpg"}
   ]},
-  { id: "quelthanas", name: "March on Quel'Danas", bosses: [
-    { id: "beloren", name: "Belo'ren, Child of Al'ar", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_beloren.jpg" },
-    { id: "midnight", name: "Midnight Falls", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_midnightfalls.jpg" }
+  { id:"quelthanas", name:"March on Quel'Danas", bosses:[
+    {id:"beloren",name:"Belo'ren, Child of Al'ar",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_beloren.jpg"},
+    {id:"midnight",name:"Midnight Falls",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_midnightfalls.jpg"}
   ]}
 ];
 
-// Criar botões de raid
-const raidButtonsDiv = document.getElementById("raidButtons");
-raids.forEach((raid, idx)=>{
-  const btn = document.createElement("button");
-  btn.innerText = raid.name;
-  btn.onclick = ()=>loadRaid(idx);
-  raidButtonsDiv.appendChild(btn);
-});
+async function loadProgress(){
+  let html="";
+  for(const raid of raids){
+    html+=`<div class="card"><h2>${raid.name}</h2>`;
+    let totalPulls=0;
+    let killedCount=0;
 
-// Selecionar dificuldade
-window.setDifficulty = (diff)=>{
-  difficulty = diff;
-  loadRaid(currentRaidIndex);
-}
+    for(const boss of raid.bosses){
+      const ref=doc(db,"progress",raid.id+"_"+boss.id);
+      const snap=await getDoc(ref);
+      const data=snap.exists()?snap.data():{ pulls:0, dead:false };
+      totalPulls+=data.pulls;
+      if(data.dead) killedCount++;
 
-// Carregar raid
-window.loadRaid = async (idx)=>{
-  currentRaidIndex=idx;
-  const raid = raids[idx];
-  let html = `<div class="card"><h2>${raid.name}</h2>`;
-  let totalPulls=0;
-  let killedCount=0;
-
-  for(const boss of raid.bosses){
-    const ref = doc(db,"progress", raid.id+"_"+boss.id);
-    const snap = await getDoc(ref);
-    const data = snap.exists()?snap.data():{ normal:{pulls:0,dead:false}, hc:{pulls:0,dead:false}, mythic:{pulls:0,dead:false} };
-    const stat = data[difficulty];
-    totalPulls+=stat.pulls;
-    if(stat.dead) killedCount++;
-
-    html+=`
-      <div class="boss">
+      html+=`<div class="boss">
         <span><img src="${boss.icon}" width="32" height="32"> ${boss.name}</span>
         <span>
-          ${isAdmin?`<input type="number" value="${stat.pulls}" onchange="updatePulls('${raid.id}','${boss.id}','${difficulty}',this.value)">`:stat.pulls}
-          ${isAdmin?`<button onclick="toggleDead('${raid.id}','${boss.id}','${difficulty}',${stat.dead})">${stat.dead?"Dead":"Alive"}</button>`:(stat.dead?"✔":"❌")}
+          ${isAdmin?`<input type="number" value="${data.pulls}" onchange="updatePulls('${raid.id}','${boss.id}',this.value)">`:data.pulls}
+          ${isAdmin?`<button onclick="toggleDead('${raid.id}','${boss.id}',${data.dead})">${data.dead?"Dead":"Alive"}</button>`:(data.dead?"✔":"❌")}
         </span>
       </div>`;
+    }
+
+    const percent=(killedCount/raid.bosses.length)*100;
+    html+=`<p>Total Pulls: ${totalPulls}</p>
+           <div class="progress-container"><div class="progress-bar" style="width:${percent}%"></div></div></div>`;
   }
-
-  const percent = (killedCount/raid.bosses.length)*100;
-  html+=`<p>Total Pulls: ${totalPulls}</p><div class="progress-container"><div class="progress-bar" style="width:${percent}%"></div></div></div>`;
-  document.getElementById("raidInfo").innerHTML = html;
+  document.getElementById("raidInfo").innerHTML=html;
 }
 
-// Admin functions
-window.updatePulls = async (raid,boss,diff,val)=>{
-  const ref = doc(db,"progress",raid+"_"+boss);
-  const snap = await getDoc(ref);
-  let data = snap.exists()?snap.data():{ normal:{pulls:0,dead:false}, hc:{pulls:0,dead:false}, mythic:{pulls:0,dead:false} };
-  data[diff].pulls = Number(val);
+window.updatePulls=async(raid,boss,val)=>{
+  const ref=doc(db,"progress",raid+"_"+boss);
+  const snap=await getDoc(ref);
+  const data=snap.exists()?snap.data():{ pulls:0, dead:false };
+  data.pulls=Number(val);
   await setDoc(ref,data);
-  loadRaid(currentRaidIndex);
+  loadProgress();
 }
 
-window.toggleDead = async (raid,boss,diff,current)=>{
-  const ref = doc(db,"progress",raid+"_"+boss);
-  const snap = await getDoc(ref);
-  let data = snap.exists()?snap.data():{ normal:{pulls:0,dead:false}, hc:{pulls:0,dead:false}, mythic:{pulls:0,dead:false} };
-  data[diff].dead = !current;
+window.toggleDead=async(raid,boss,current)=>{
+  const ref=doc(db,"progress",raid+"_"+boss);
+  const snap=await getDoc(ref);
+  const data=snap.exists()?snap.data():{ pulls:0, dead:false };
+  data.dead=!current;
   await setDoc(ref,data);
-  loadRaid(currentRaidIndex);
+  loadProgress();
 }
 
-// Carregar primeira raid
-loadRaid(0);
+loadProgress();
 </script>
 
 </body>
