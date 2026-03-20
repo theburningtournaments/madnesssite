@@ -7,13 +7,12 @@
 </head>
 <body>
 
-<h1>Progresso</h1>
+<header>
+  <h1>Madness Guild</h1>
+  <a href="index.html">⬅ Voltar</a>
+</header>
 
-<select id="difficulty">
-  <option value="normal">Normal</option>
-  <option value="heroic">Heroic</option>
-  <option value="mythic">Mythic</option>
-</select>
+<h1>Progresso</h1>
 
 <div id="raid"></div>
 
@@ -39,18 +38,17 @@ snap.forEach(doc=>{
     totalPulls += b.pulls;
     if(b.dead) killed++;
 
-    html += `
-      <p>${b.name} - Pulls: ${b.pulls} - ${b.dead ? "Dead" : "Alive"}</p>
-    `;
+    html += `<p>${b.name} | Pulls: ${b.pulls} | ${b.dead ? "Dead" : "Alive"}</p>`;
   });
 
   let percent = (killed / r.bosses.length) * 100;
 
   html += `
     <p>Total Pulls: ${totalPulls}</p>
-    <div class="progress-bar" style="width:${percent}%"></div>
-  </div>
-  `;
+    <div style="background:#333;height:20px;">
+      <div style="background:green;width:${percent}%;height:20px;"></div>
+    </div>
+  </div>`;
 
   document.getElementById("raid").innerHTML += html;
 });
