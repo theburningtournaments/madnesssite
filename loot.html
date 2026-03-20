@@ -5,20 +5,82 @@
 <title>Loot - Madness</title>
 <link rel="stylesheet" href="style.css">
 <style>
-body{background: linear-gradient(to bottom,#0a0a0a,#111); color:gold; font-family:"Friz Quadrata",Arial,sans-serif; margin:0; padding:0;}
-.navbar{position:fixed;top:0;width:100%;background:#111;color:gold;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:1000;border-bottom:3px solid gold;}
-.navbar .links a{color:gold;margin-left:15px;text-decoration:none;font-weight:bold;transition:0.3s;}
-.navbar .links a:hover{color:#ffd700;text-shadow:0 0 5px #ffd700;}
-.container{margin-top:70px;padding:20px;}
-.card{background: linear-gradient(145deg,#1b1b1b,#111);padding:20px;margin-bottom:20px;border-radius:10px;border:2px solid gold;box-shadow: 0 0 15px rgba(255,215,0,0.2);}
-table{width:100%;border-collapse:collapse;margin-top:10px;}
-th,td{padding:8px;text-align:left;border-bottom:1px solid gold;}
+body{
+  background: linear-gradient(to bottom,#0a0a0a,#111); 
+  color: gold; 
+  font-family:"Friz Quadrata",Arial,sans-serif; 
+  margin:0; padding:0;
+}
+.navbar{
+  position:fixed;
+  top:0;
+  width:100%;
+  background:#111;
+  color:gold;
+  padding:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  z-index:1000;
+  border-bottom:3px solid gold;
+}
+.navbar .links a{
+  color:gold;
+  margin-left:15px;
+  text-decoration:none;
+  font-weight:bold;
+  transition:0.3s;
+}
+.navbar .links a:hover{
+  color:#ffd700;
+  text-shadow:0 0 5px #ffd700;
+}
+.container{
+  margin-top:70px;
+  padding:20px;
+}
+.card{
+  background: linear-gradient(145deg,#1b1b1b,#111);
+  padding:20px;
+  margin-bottom:20px;
+  border-radius:10px;
+  border:2px solid gold;
+  box-shadow: 0 0 15px rgba(255,215,0,0.2);
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+th,td{
+  padding:8px;
+  text-align:left;
+  border-bottom:1px solid gold;
+}
 th{background:#222;}
 tr:nth-child(even){background:#1c1c1c;}
 tr:nth-child(odd){background:#111;}
-input{padding:5px;border-radius:5px;background:#111;color:gold;border:1px solid gold;}
-button{padding:5px 10px;border-radius:5px;background:#111;color:gold;border:1px solid gold;cursor:pointer;transition:0.3s;}
-button:hover{background:#222;box-shadow:0 0 8px #ffd700;}
+input{
+  padding:5px;
+  border-radius:5px;
+  background:#111;
+  color:gold;
+  border:1px solid gold;
+  margin-right:10px;
+}
+button{
+  padding:5px 10px;
+  border-radius:5px;
+  background:#111;
+  color:gold;
+  border:1px solid gold;
+  cursor:pointer;
+  transition:0.3s;
+}
+button:hover{
+  background:#222;
+  box-shadow:0 0 8px #ffd700;
+}
 </style>
 </head>
 <body>
@@ -35,7 +97,7 @@ button:hover{background:#222;box-shadow:0 0 8px #ffd700;}
 
 <div class="container">
   <div class="card" id="lootCard">
-    <input id="search" placeholder="Pesquisar..." style="width:200px;">
+    <input id="search" placeholder="Pesquisar por Player / Item / Tipo / Data" style="width:300px;">
     <button id="importBtn" style="display:none;">Importar Excel</button>
     <table id="table"></table>
   </div>
@@ -49,6 +111,7 @@ import { getFirestore, collection, getDocs } from "https://www.gstatic.com/fireb
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// Admin check
 const isAdmin = localStorage.getItem("admin")==="true";
 if(isAdmin){
     importBtn.style.display="inline-block";
@@ -65,13 +128,25 @@ function render(list){
   table.innerHTML="<tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th></tr>";
   list.forEach(l=>{
     table.innerHTML+=`<tr>
-      <td>${l.player}</td><td>${l.item}</td><td>${l.type}</td><td>${l.date}</td>
+      <td>${l.player}</td>
+      <td>${l.item}</td>
+      <td>${l.type}</td>
+      <td>${l.date}</td>
     </tr>`;
   });
 }
 render(data);
 
-search.onkeyup = ()=>render(data.filter(l=>l.player.toLowerCase().includes(search.value.toLowerCase()) || l.item.toLowerCase().includes(search.value.toLowerCase())));
+// Pesquisa completa: player, item, tipo, data
+search.onkeyup = ()=>{
+  const term = search.value.toLowerCase();
+  render(data.filter(l=>
+    l.player.toLowerCase().includes(term) ||
+    l.item.toLowerCase().includes(term) ||
+    l.type.toLowerCase().includes(term) ||
+    l.date.toLowerCase().includes(term)
+  ));
+};
 </script>
 </body>
 </html>
