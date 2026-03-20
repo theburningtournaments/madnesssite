@@ -2,8 +2,16 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>Madness</title>
+<title>Informações - Madness</title>
 <link rel="stylesheet" href="style.css">
+<style>
+body{background:#0b0b0b;color:gold;font-family:Arial,sans-serif;margin:0;padding:0;}
+.navbar{position:fixed;top:0;width:100%;background:#111;color:gold;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:1000;}
+.navbar .links a{color:gold;margin-left:15px;text-decoration:none;font-weight:bold;}
+.container{margin-top:70px;padding:20px;}
+.card{background:#1c1c1c;padding:15px;margin-bottom:20px;border-radius:8px;border:1px solid gold;}
+.card img{max-width:100%;border-radius:8px;}
+</style>
 </head>
 <body>
 
@@ -19,28 +27,53 @@
 
 <div class="container">
   <div id="posts"></div>
+
+  <!-- Admin post box -->
+  <div id="adminPostBox" class="card" style="display:none;">
+    <h2>Criar Post (Admin)</h2>
+    <input id="postTitle" placeholder="Título"><br><br>
+    <textarea id="postContent" placeholder="Conteúdo"></textarea><br><br>
+    <input id="postImage" placeholder="URL da Imagem"><br><br>
+    <button id="createPostBtn">Publicar</button>
+  </div>
 </div>
 
 <script type="module">
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+const isAdmin = localStorage.getItem("admin") === "true";
+if(isAdmin) document.getElementById("adminPostBox").style.display="block";
+
+// Carregar posts
 const snap = await getDocs(collection(db,"posts"));
 snap.forEach(doc=>{
   const p = doc.data();
-  posts.innerHTML += `
+  document.getElementById("posts").innerHTML += `
     <div class="card">
       <h2>${p.title}</h2>
+      ${p.image ? `<img src="${p.image}">` : ''}
       <p>${p.content}</p>
       <small>${p.date}</small>
     </div>
   `;
 });
-</script>
 
+// Criar post
+document.getElementById("createPostBtn").onclick=async()=>{
+  await addDoc(collection(db,"posts"),{
+    title: document.getElementById("postTitle").value,
+    content: document.getElementById("postContent").value,
+    image: document.getElementById("postImage").value,
+    date: new Date().toLocaleDateString()
+  });
+  alert("Post publicado!");
+  location.reload();
+}
+</script>
 </body>
 </html>
