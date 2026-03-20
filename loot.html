@@ -1,0 +1,54 @@
+<html>
+<head>
+  <title>Loot</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <a href="index.html">Informações</a>
+    <a href="progress.html">Progresso</a>
+    <a href="loot.html">Loot</a>
+  </nav>
+
+  <h1>Loot</h1>
+  <input type="text" id="search" placeholder="Procurar...">
+  <div id="loot"></div>
+
+  <script type="module" src="firebase.js"></script>
+  <script type="module">
+    import { db } from './firebase.js';
+    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const lootDiv = document.getElementById("loot");
+    const search = document.getElementById("search");
+
+    let data = [];
+
+    async function loadLoot() {
+      const snapshot = await getDocs(collection(db, "loot"));
+      data = [];
+      snapshot.forEach(doc => data.push(doc.data()));
+      render(data);
+    }
+
+    function render(list) {
+      lootDiv.innerHTML = "";
+      list.forEach(l => {
+        lootDiv.innerHTML += `
+          <div class="card">
+            <p>${l.player} - ${l.item}</p>
+            <small>${l.date}</small>
+          </div>
+        `;
+      });
+    }
+
+    search.addEventListener("input", () => {
+      const val = search.value.toLowerCase();
+      render(data.filter(l => l.player.toLowerCase().includes(val) || l.item.toLowerCase().includes(val)));
+    });
+
+    loadLoot();
+  </script>
+</body>
+</html>

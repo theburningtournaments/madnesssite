@@ -1,0 +1,43 @@
+<html>
+<head>
+  <title>Progresso</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <a href="index.html">Informações</a>
+    <a href="progress.html">Progresso</a>
+    <a href="loot.html">Loot</a>
+  </nav>
+
+  <h1>Progresso Raid</h1>
+  <div id="raid"></div>
+
+  <script type="module" src="firebase.js"></script>
+  <script type="module">
+    import { db } from './firebase.js';
+    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const raidDiv = document.getElementById("raid");
+
+    async function loadRaid() {
+      const snapshot = await getDocs(collection(db, "raids"));
+      raidDiv.innerHTML = "";
+      snapshot.forEach(doc => {
+        const raid = doc.data();
+        raid.bosses.forEach(b => {
+          raidDiv.innerHTML += `
+            <div class="card">
+              <h3>${b.name}</h3>
+              <p>Pulls: ${b.pulls}</p>
+              <p>Status: ${b.killed ? 'Dead' : 'Alive'}</p>
+            </div>
+          `;
+        });
+      });
+    }
+
+    loadRaid();
+  </script>
+</body>
+</html>

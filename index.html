@@ -1,0 +1,43 @@
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Madness Guild</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <a href="index.html">Informações</a>
+    <a href="progress.html">Progresso</a>
+    <a href="loot.html">Loot</a>
+    <a href="login.html">Admin</a>
+  </nav>
+
+  <h1>Madness Guild</h1>
+  <div id="posts"></div>
+
+  <script type="module" src="firebase.js"></script>
+  <script type="module">
+    import { db } from './firebase.js';
+    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const postsDiv = document.getElementById("posts");
+
+    async function loadPosts() {
+      const querySnapshot = await getDocs(collection(db, "posts"));
+      postsDiv.innerHTML = "";
+      querySnapshot.forEach((doc) => {
+        const post = doc.data();
+        postsDiv.innerHTML += `
+          <div class="card">
+            <h2>${post.title}</h2>
+            <p>${post.content}</p>
+            <small>${post.date}</small>
+          </div>
+        `;
+      });
+    }
+
+    loadPosts();
+  </script>
+</body>
+</html>
