@@ -1,44 +1,18 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-<meta charset="UTF-8">
-<title>Admin</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<div class="navbar">
-  <div class="logo">MADNESS</div>
-  <div class="links">
-    <a href="index.html">Informações</a>
-    <a href="progresso.html">Progresso</a>
-    <a href="loot.html">Loot</a>
-  </div>
-</div>
-
 <div class="container">
 
-<div id="loginBox" class="card">
-  <h2>Login</h2>
-  <input id="email">
-  <input id="pass" type="password">
-  <button id="loginBtn">Login</button>
-</div>
-
 <div id="dashboard" class="card" style="display:none;">
-  <h2>Dashboard</h2>
+  <h2>Dashboard Admin</h2>
   <button id="logoutBtn">Logout</button>
 
-  <h3>Post</h3>
-  <input id="title">
-  <textarea id="content"></textarea>
-  <button id="postBtn">Criar</button>
+  <p>Total de Posts publicados: <span id="totalPosts">0</span></p>
+  <p>Total de Loot registrados: <span id="totalLoot">0</span></p>
+</div>
 
-  <h3>Loot</h3>
-  <input id="player">
-  <input id="item">
-  <input id="type">
-  <button id="lootBtn">Adicionar</button>
+<div id="loginBox" class="card">
+  <h2>Login Admin</h2>
+  <input id="email" placeholder="Email">
+  <input id="pass" type="password" placeholder="Password">
+  <button id="loginBtn">Login</button>
 </div>
 
 </div>
@@ -47,15 +21,19 @@
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const loginBox = document.getElementById("loginBox");
+const dashboard = document.getElementById("dashboard");
+
 if(localStorage.getItem("admin")){
   loginBox.style.display="none";
   dashboard.style.display="block";
+  updateStats();
 }
 
 loginBtn.onclick=()=>{
@@ -63,7 +41,8 @@ loginBtn.onclick=()=>{
   .then(()=>{
     localStorage.setItem("admin","true");
     location.reload();
-  });
+  })
+  .catch(e=>alert(e.message));
 }
 
 logoutBtn.onclick=()=>{
@@ -73,25 +52,10 @@ logoutBtn.onclick=()=>{
   });
 }
 
-postBtn.onclick=async()=>{
-  await addDoc(collection(db,"posts"),{
-    title:title.value,
-    content:content.value,
-    date:new Date().toLocaleDateString()
-  });
-  alert("Post criado");
-}
-
-lootBtn.onclick=async()=>{
-  await addDoc(collection(db,"loot"),{
-    player:player.value,
-    item:item.value,
-    type:type.value,
-    date:new Date().toLocaleDateString()
-  });
-  alert("Loot adicionado");
+async function updateStats(){
+  const postsSnap = await getDocs(collection(db,"posts"));
+  const lootSnap = await getDocs(collection(db,"loot"));
+  totalPosts.innerText = postsSnap.size;
+  totalLoot.innerText = lootSnap.size;
 }
 </script>
-
-</body>
-</html>
