@@ -172,46 +172,62 @@ tr:nth-child(odd){background:#111;}
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 const loginForm = document.getElementById("loginForm");
 const adminContent = document.getElementById("adminContent");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
-
-const emailAdmin = "admin@example.com"; // substituir pelo seu email admin
-const passAdmin = "senha123";           // substituir pela sua senha
+const lootTableBody = document.querySelector("#lootTable tbody");
+const addLootBtn = document.getElementById("addLootBtn");
 
 // Login
-loginBtn.onclick = ()=>{
+loginBtn.onclick = () => {
   const email = document.getElementById("email").value;
   const pass = document.getElementById("password").value;
-  if(email===emailAdmin && pass===passAdmin){
-    localStorage.setItem("admin","true");
+
+  signInWithEmailAndPassword(auth, email, pass)
+    .then((userCredential) => {
+      localStorage.setItem("admin","true");
+      loginForm.style.display="none";
+      adminContent.style.display="block";
+      logoutBtn.style.display="inline-block";
+      loadDashboard();
+      loadLoot();
+      alert("Login bem-sucedido!");
+    })
+    .catch((error) => {
+      alert("Email ou senha incorretos!");
+      console.log(error);
+    });
+};
+
+// Logout
+logoutBtn.onclick = () => {
+  signOut(auth).then(() => {
+    localStorage.removeItem("admin");
+    window.location.reload();
+  });
+};
+
+// Mantém conteúdo visível se já logado
+onAuthStateChanged(auth, (user) => {
+  if (user) {
     loginForm.style.display="none";
     adminContent.style.display="block";
     logoutBtn.style.display="inline-block";
     loadDashboard();
     loadLoot();
-  } else alert("Email ou senha incorretos!");
-};
-
-// Logout
-logoutBtn.onclick = ()=>{
-  localStorage.removeItem("admin");
-  window.location.reload();
-};
-
-// Check login
-if(localStorage.getItem("admin")==="true"){
-  loginForm.style.display="none";
-  adminContent.style.display="block";
-  logoutBtn.style.display="inline-block";
-  loadDashboard();
-  loadLoot();
-}
+  } else {
+    loginForm.style.display="block";
+    adminContent.style.display="none";
+    logoutBtn.style.display="none";
+  }
+});
 
 // Dashboard
 async function loadDashboard(){
@@ -271,9 +287,6 @@ async function loadDashboard(){
 }
 
 // Loot CRUD
-const lootTableBody = document.querySelector("#lootTable tbody");
-const addLootBtn = document.getElementById("addLootBtn");
-
 async function loadLoot(){
   lootTableBody.innerHTML="";
   const snap = await getDocs(collection(db,"loot"));
