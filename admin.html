@@ -4,13 +4,75 @@
 <meta charset="UTF-8">
 <title>Admin - Madness</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-body{background:#0b0b0b;color:gold;font-family:Arial,sans-serif;margin:0;padding:0;}
-.navbar{position:fixed;top:0;width:100%;background:#111;color:gold;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:1000;}
-.navbar .links a{color:gold;margin-left:15px;text-decoration:none;font-weight:bold;}
-.container{margin-top:70px;padding:20px;}
-.card{background:#1c1c1c;padding:15px;margin-bottom:20px;border-radius:8px;border:1px solid gold;}
-button,input{margin:3px;padding:5px;border-radius:5px;background:#111;color:gold;border:1px solid gold;}
+body{
+  background: linear-gradient(to bottom,#0a0a0a,#111);
+  color: gold;
+  font-family:"Friz Quadrata",Arial,sans-serif;
+  margin:0;
+  padding:0;
+}
+.navbar{
+  position:fixed;
+  top:0;
+  width:100%;
+  background:#111;
+  color:gold;
+  padding:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  z-index:1000;
+  border-bottom:3px solid gold;
+}
+.navbar .links a{
+  color:gold;
+  margin-left:15px;
+  text-decoration:none;
+  font-weight:bold;
+  transition:0.3s;
+}
+.navbar .links a:hover{
+  color:#ffd700;
+  text-shadow:0 0 5px #ffd700;
+}
+.container{
+  margin-top:70px;
+  padding:20px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:20px;
+}
+.card{
+  background: linear-gradient(145deg,#1b1b1b,#111);
+  padding:20px;
+  border-radius:10px;
+  border:2px solid gold;
+  box-shadow: 0 0 15px rgba(255,215,0,0.2);
+  transition: 0.3s;
+  width:300px;
+}
+.card:hover{
+  transform: scale(1.03);
+  box-shadow:0 0 20px #ffd700;
+}
+.card h3{margin-top:0;}
+#charts{display:flex; flex-wrap:wrap; gap:20px; margin-top:20px;}
+canvas{background:#111; border:1px solid gold; border-radius:10px;}
+button{
+  padding:5px 10px;
+  border-radius:5px;
+  background:#111;
+  color:gold;
+  border:1px solid gold;
+  cursor:pointer;
+  transition:0.3s;
+}
+button:hover{
+  background:#222;
+  box-shadow:0 0 8px #ffd700;
+}
 </style>
 </head>
 <body>
@@ -21,66 +83,118 @@ button,input{margin:3px;padding:5px;border-radius:5px;background:#111;color:gold
     <a href="index.html">Informações</a>
     <a href="progresso.html">Progresso</a>
     <a href="loot.html">Loot</a>
-    <a href="admin.html">Admin</a>
+    <a href="#" id="logoutBtn">Logout</a>
   </div>
 </div>
 
-<div class="container">
-
-<div id="dashboard" class="card" style="display:none;">
-<h2>Dashboard Admin</h2>
-<button id="logoutBtn">Logout</button>
-<p>Total de Posts publicados: <span id="totalPosts">0</span></p>
-<p>Total de Loot registrados: <span id="totalLoot">0</span></p>
+<div class="container" id="dashboard">
+  <div class="card">
+    <h3>Total de Posts</h3>
+    <p id="totalPosts">0</p>
+  </div>
+  <div class="card">
+    <h3>Total de Loot</h3>
+    <p id="totalLoot">0</p>
+  </div>
+  <div class="card">
+    <h3>Raids Completadas</h3>
+    <p id="raidsCompleted">0</p>
+  </div>
 </div>
 
-<div id="loginBox" class="card">
-<h2>Login Admin</h2>
-<input id="email" placeholder="Email">
-<input id="pass" type="password" placeholder="Password">
-<button id="loginBtn">Login</button>
-</div>
-
+<div class="container" id="charts">
+  <canvas id="raidChart" width="400" height="200"></canvas>
 </div>
 
 <script type="module">
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
 
-if(localStorage.getItem("admin")){
-  loginBox.style.display="none";
-  dashboard.style.display="block";
-  updateStats();
+// Check login
+const isAdmin = localStorage.getItem("admin")==="true";
+if(!isAdmin){
+  alert("Acesso negado. Apenas admins.");
+  window.location.href="index.html";
 }
 
-loginBtn.onclick=()=>{
-  signInWithEmailAndPassword(auth,email.value,pass.value)
-  .then(()=>{
-    localStorage.setItem("admin","true");
-    location.reload();
-  })
-  .catch(e=>alert(e.message));
-}
+// Logout
+logoutBtn.onclick = ()=>{
+  localStorage.removeItem("admin");
+  window.location.href="index.html";
+};
 
-logoutBtn.onclick=()=>{
-  signOut(auth).then(()=>{
-    localStorage.removeItem("admin");
-    location.reload();
-  });
-}
-
-async function updateStats(){
+// Dashboard contagem
+async function loadDashboard(){
   const postsSnap = await getDocs(collection(db,"posts"));
   const lootSnap = await getDocs(collection(db,"loot"));
   totalPosts.innerText = postsSnap.size;
   totalLoot.innerText = lootSnap.size;
+
+  // Raids completadas
+  // Supondo coleção progress { raid_boss: { pulls, dead } }
+  const raids = ["dreamrift","voidspire","quelthanas"];
+  let completed=0;
+  for(const raid of raids){
+    const bossesSnap = await getDocs(collection(db,"progress"));
+    let killed=0;
+    let total=0;
+    bossesSnap.forEach(doc=>{
+      if(doc.id.startsWith(raid)){
+        total++;
+        if(doc.data().dead) killed++;
+      }
+    });
+    if(killed===total && total>0) completed++;
+  }
+  raidsCompleted.innerText = completed;
+
+  // Chart de progresso das raids
+  const ctx = document.getElementById('raidChart').getContext('2d');
+  const labels = [];
+  const progresses = [];
+  for(const raid of raids){
+    const bossesSnap = await getDocs(collection(db,"progress"));
+    let killed=0;
+    let total=0;
+    bossesSnap.forEach(doc=>{
+      if(doc.id.startsWith(raid)){
+        total++;
+        if(doc.data().dead) killed++;
+      }
+    });
+    labels.push(raid);
+    progresses.push(total>0?Math.round((killed/total)*100):0);
+  }
+
+  new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:labels,
+      datasets:[{
+        label:'Progresso (%)',
+        data:progresses,
+        backgroundColor:'gold',
+        borderColor:'#ffd700',
+        borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true,
+      scales:{
+        y:{
+          beginAtZero:true,
+          max:100
+        }
+      }
+    }
+  });
 }
+
+loadDashboard();
 </script>
 </body>
 </html>
