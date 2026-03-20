@@ -1,47 +1,66 @@
 body {
   margin: 0;
+  font-family: "Cinzel", serif;
   background: url("https://wallpapercave.com/wp/wp2757874.jpg") no-repeat center center fixed;
   background-size: cover;
-  font-family: "Cinzel", serif;
   color: #f0d36b;
 }
 
-header {
-  background: rgba(0,0,0,0.8);
-  padding: 15px;
-  text-align: center;
+/* NAVBAR FIXA */
+.navbar {
+  position: sticky;
+  top: 0;
+  background: rgba(0,0,0,0.9);
   border-bottom: 2px solid #c9a44e;
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  z-index: 1000;
 }
 
-header a {
-  margin: 10px;
-  color: #f0d36b;
+.logo {
+  font-size: 24px;
   font-weight: bold;
-  text-decoration: none;
 }
 
-header a:hover {
+.links a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #f0d36b;
+}
+
+.links a:hover {
   color: white;
 }
 
+/* CONTEÚDO */
 .container {
   padding: 20px;
 }
 
+/* CARDS */
 .card {
-  background: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.8);
   border: 2px solid #c9a44e;
   border-radius: 10px;
-  padding: 15px;
-  margin: 20px 0;
-  box-shadow: 0 0 10px black;
+  padding: 20px;
+  margin-bottom: 20px;
 }
 
+/* BOSS */
+.boss {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #444;
+  padding: 8px;
+}
+
+/* BOTÕES */
 button {
   background: linear-gradient(#5a0f0f, #2b0000);
-  border: 1px solid #c9a44e;
-  color: #fff;
-  padding: 10px;
+  border: 1px solid gold;
+  color: white;
+  padding: 6px 10px;
   cursor: pointer;
 }
 
@@ -49,9 +68,9 @@ button:hover {
   background: #8b1a1a;
 }
 
+/* PROGRESS BAR */
 .progress-container {
   background: #222;
-  border: 1px solid gold;
   height: 20px;
   border-radius: 5px;
   overflow: hidden;
@@ -62,9 +81,10 @@ button:hover {
   height: 100%;
 }
 
-.boss {
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px solid #444;
-  padding: 5px 0;
+/* SELECT */
+select {
+  padding: 10px;
+  background: black;
+  color: gold;
+  border: 1px solid gold;
 }
