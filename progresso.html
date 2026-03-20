@@ -9,49 +9,129 @@
 
 <header>
   <h1>Madness Guild</h1>
-  <a href="index.html">⬅ Voltar</a>
+  <a href="index.html">Informações</a>
+  <a href="loot.html">Loot</a>
 </header>
 
-<h1>Progresso</h1>
+<div class="container">
 
-<div id="raid"></div>
+<select id="raidSelect"></select>
+<div id="raidInfo"></div>
+
+</div>
 
 <script type="module">
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const snap = await getDocs(collection(db,"raids"));
+const isAdmin = localStorage.getItem("admin") === "true";
 
-snap.forEach(doc=>{
-  const r = doc.data();
+// 🎮 RAIDS FIXAS (EDITA AQUI)
+const raids = [
+{
+  id: "raid1",
+  name: "Midnight Raid Alpha",
+  bosses: [
+    { id: "boss1", name: "Boss 1" },
+    { id: "boss2", name: "Boss 2" },
+    { id: "boss3", name: "Boss 3" }
+  ]
+},
+{
+  id: "raid2",
+  name: "Midnight Raid Beta",
+  bosses: [
+    { id: "boss1", name: "Boss A" },
+    { id: "boss2", name: "Boss B" }
+  ]
+}
+];
+
+// preencher select
+raids.forEach((r,i)=>{
+  raidSelect.innerHTML += `<option value="${i}">${r.name}</option>`;
+});
+
+async function loadRaid(index){
+  const r = raids[index];
+
+  let html = `<div class="card"><h2>${r.name}</h2>`;
 
   let totalPulls = 0;
   let killed = 0;
 
-  let html = `<div class="box"><h2>${r.name}</h2>`;
+  for (let b of r.bosses){
 
-  r.bosses.forEach(b=>{
-    totalPulls += b.pulls;
-    if(b.dead) killed++;
+    const ref = doc(db,"progress", r.id + "_" + b.id);
+    const snap = await getDoc(ref);
 
-    html += `<p>${b.name} | Pulls: ${b.pulls} | ${b.dead ? "Dead" : "Alive"}</p>`;
-  });
+    let data = snap.exists() ? snap.data() : { pulls: 0, dead: false };
+
+    totalPulls += data.pulls;
+    if(data.dead) killed++;
+
+    html += `
+      <div class="boss">
+        <span>${b.name}</span>
+
+        <span>
+          Pulls: ${isAdmin 
+            ? `<input type="number" value="${data.pulls}" onchange="updatePulls('${r.id}','${b.id}', this.value)">`
+            : data.pulls
+          }
+
+          ${isAdmin
+            ? `<button onclick="toggleDead('${r.id}','${b.id}', ${data.dead})">
+                ${data.dead ? "Dead" : "Alive"}
+              </button>`
+            : (data.dead ? "✔" : "❌")
+          }
+        </span>
+      </div>
+    `;
+  }
 
   let percent = (killed / r.bosses.length) * 100;
 
   html += `
     <p>Total Pulls: ${totalPulls}</p>
-    <div style="background:#333;height:20px;">
-      <div style="background:green;width:${percent}%;height:20px;"></div>
-    </div>
-  </div>`;
 
-  document.getElementById("raid").innerHTML += html;
-});
+    <div class="progress-container">
+      <div class="progress-bar" style="width:${percent}%"></div>
+    </div>
+
+    <p>${percent.toFixed(0)}%</p>
+  </div>
+  `;
+
+  raidInfo.innerHTML = html;
+}
+
+// 🔥 FUNÇÕES ADMIN
+window.updatePulls = async (raidId, bossId, value) => {
+  await setDoc(doc(db,"progress", raidId+"_"+bossId), {
+    pulls: Number(value),
+    dead: false
+  }, { merge: true });
+
+  loadRaid(raidSelect.value);
+};
+
+window.toggleDead = async (raidId, bossId, current) => {
+  await setDoc(doc(db,"progress", raidId+"_"+bossId), {
+    dead: !current
+  }, { merge: true });
+
+  loadRaid(raidSelect.value);
+};
+
+raidSelect.onchange = () => loadRaid(raidSelect.value);
+
+loadRaid(0);
 </script>
 
 </body>
