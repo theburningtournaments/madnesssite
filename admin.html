@@ -1,82 +1,38 @@
 <!DOCTYPE html>
 <html lang="pt">
+  <header>
+  <h1>Madness Guild</h1>
+  <a href="index.html">Informações</a>
+  <a href="progresso.html">Progresso</a>
+  <a href="loot.html">Loot</a>
+</header>
 <head>
   <meta charset="UTF-8">
-  <title>Admin</title>
+  <title>Admin Login</title>
 </head>
 <body style="background:#0b0b0b;color:#c9a44e">
 
-<h2>Login</h2>
+<h2>Login Admin</h2>
 
-<input id="email" placeholder="Email"><br>
-<input id="pass" type="password" placeholder="Password"><br>
+<input id="email" placeholder="Email"><br><br>
+<input id="pass" type="password" placeholder="Password"><br><br>
 <button id="loginBtn">Login</button>
-
-<hr>
-
-<h2>Criar Post</h2>
-
-<input id="title" placeholder="Título"><br>
-<textarea id="content"></textarea><br>
-<button id="postBtn">Publicar</button>
-
-<hr>
-
-<h2>Adicionar Loot</h2>
-
-<input id="player" placeholder="Player"><br>
-<input id="item" placeholder="Item"><br>
-<input id="type" placeholder="Tipo"><br>
-<button id="lootBtn">Adicionar</button>
 
 <script type="module">
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
 
-// LOGIN
 document.getElementById("loginBtn").onclick = () => {
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("pass").value;
-
-  signInWithEmailAndPassword(auth, email, pass)
-    .then(() => alert("Login OK"))
+  signInWithEmailAndPassword(auth, email.value, pass.value)
+    .then(() => {
+      localStorage.setItem("admin","true");
+      alert("Login feito");
+    })
     .catch(e => alert(e.message));
-};
-
-// POST
-document.getElementById("postBtn").onclick = async () => {
-  const title = document.getElementById("title").value;
-  const content = document.getElementById("content").value;
-
-  await addDoc(collection(db,"posts"),{
-    title,
-    content,
-    date: new Date().toLocaleDateString()
-  });
-
-  alert("Post criado");
-};
-
-// LOOT
-document.getElementById("lootBtn").onclick = async () => {
-  const player = document.getElementById("player").value;
-  const item = document.getElementById("item").value;
-  const type = document.getElementById("type").value;
-
-  await addDoc(collection(db,"loot"),{
-    player,
-    item,
-    type,
-    date: new Date().toLocaleDateString()
-  });
-
-  alert("Loot adicionado");
 };
 </script>
 
