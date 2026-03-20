@@ -2,11 +2,12 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>Progresso</title>
+<title>Progresso - Madness</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- Navbar fixa -->
 <div class="navbar">
   <div class="logo">MADNESS</div>
   <div class="links">
@@ -19,14 +20,18 @@
 
 <div class="container">
 
-<div id="difficultySelector" class="card">
-  <button onclick="setDifficulty('normal')">Normal</button>
-  <button onclick="setDifficulty('hc')">Heroic</button>
-  <button onclick="setDifficulty('mythic')">Mythic</button>
-</div>
+  <!-- Seleção de dificuldade -->
+  <div id="difficultySelector" class="card">
+    <button onclick="setDifficulty('normal')">Normal</button>
+    <button onclick="setDifficulty('hc')">Heroic</button>
+    <button onclick="setDifficulty('mythic')">Mythic</button>
+  </div>
 
-<div id="raidButtons" class="card"></div>
-<div id="raidInfo"></div>
+  <!-- Botões de raids -->
+  <div id="raidButtons" class="card"></div>
+
+  <!-- Informação da raid selecionada -->
+  <div id="raidInfo"></div>
 
 </div>
 
@@ -35,6 +40,7 @@ import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
+// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const isAdmin = localStorage.getItem("admin") === "true";
@@ -42,95 +48,125 @@ const isAdmin = localStorage.getItem("admin") === "true";
 let difficulty = "normal";
 let currentRaidIndex = 0;
 
+// Definição das raids e bosses com ícones
 const raids = [
-{
-  id: "dreamrift",
-  name: "The Dreamrift",
-  bosses: [{ id: "chimaerus", name: "Chimaerus", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_chimaerus.jpg"}]
-},
-{
-  id: "voidspire",
-  name: "The Voidspire",
-  bosses: [
-    { id: "averzian", name: "Averzian", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_averzian.jpg" },
-    { id: "vorasius", name: "Vorasius", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_vorasius.jpg" },
-    { id: "fallenking", name: "Fallen King", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_fallenking.jpg" },
-    { id: "vaelgor", name: "Vaelgor & Ezzorak", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_vaelgor.jpg" },
-    { id: "vanguard", name: "Lightblinded Vanguard", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_vanguard.jpg" },
-    { id: "cosmo", name: "Crown of the Cosmos", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_cosmo.jpg" }
-  ]
-},
-{
-  id: "quelthanas",
-  name: "March on Quel'Danas",
-  bosses: [
-    { id: "beloren", name: "Belo'ren, Child of Al'ar", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_beloren.jpg" },
-    { id: "midnight", name: "Midnight Falls", icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_midnightfalls.jpg" }
-  ]
-}
+  {
+    id: "dreamrift",
+    name: "The Dreamrift",
+    bosses: [
+      { id: "chimaerus", name: "Chimaerus", icon: "https://wow.zamimg.com/images/wow/icons/large/inv_boss_chimaerus.jpg" }
+    ]
+  },
+  {
+    id: "voidspire",
+    name: "The Voidspire",
+    bosses: [
+      { id: "averzian", name: "Averzian", icon: "https://wow.zamimg.com/images/wow/icons/large/inv_boss_averzian.jpg" },
+      { id: "vorasius", name: "Vorasius", icon: "https://wow.zamimg.com/images/wow/icons/large/inv_boss_vorasius.jpg" },
+      { id: "fallenking", name: "Fallen King", icon: "https://wow.zamimg.com/images/wow/icons/large/inv_boss_fallenking.jpg" },
+      { id: "vaelgor", name: "Vaelgor & Ezzorak", icon: "https://wow.zamimg.com/images/wow/icons/large/inv_boss_vaelgor.jpg" },
+      { id: "vanguard", name: "Lightblinded Vanguard", icon: "https://wow.zamimg.com/images/wow/icons/large/inv_boss_vanguard.jpg" },
+      { id: "cosmo", name: "Crown of the Cosmos", icon: "https://wow.zamimg.com/images/wow/icons/large/inv_boss_cosmo.jpg" }
+    ]
+  },
+  {
+    id: "quelthanas",
+    name: "March on Quel'Danas",
+    bosses: [
+      { id: "beloren", name: "Belo'ren, Child of Al'ar", icon: "https://wow.zamimg.com/images/wow/icons/large/inv_boss_beloren.jpg" },
+      { id: "midnight", name: "Midnight Falls", icon: "https://wow.zamimg.com/images/wow/icons/large/inv_boss_midnightfalls.jpg" }
+    ]
+  }
 ];
 
-const raidButtons = document.getElementById("raidButtons");
-raids.forEach((r,i)=>{
-  raidButtons.innerHTML += `<button onclick="loadRaid(${i})">${r.name}</button>`;
+// Criar botões de raids
+const raidButtonsDiv = document.getElementById("raidButtons");
+raids.forEach((raid, index) => {
+  const btn = document.createElement("button");
+  btn.innerText = raid.name;
+  btn.onclick = () => loadRaid(index);
+  raidButtonsDiv.appendChild(btn);
 });
 
-window.setDifficulty = (diff)=>{
+// Função para selecionar dificuldade
+window.setDifficulty = (diff) => {
   difficulty = diff;
   loadRaid(currentRaidIndex);
 }
 
-window.loadRaid = async (index)=>{
-  currentRaidIndex=index;
+// Função para carregar a raid
+window.loadRaid = async (index) => {
+  currentRaidIndex = index;
   const r = raids[index];
-  let html=`<div class="card"><h2>${r.name}</h2>`;
-  let total=0, killed=0;
+  let html = `<div class="card"><h2>${r.name}</h2>`;
+  let totalPulls = 0;
+  let totalKilled = 0;
 
-  for(let b of r.bosses){
-    const ref=doc(db,"progress",r.id+"_"+b.id);
-    const snap=await getDoc(ref);
-    let data=snap.exists()?snap.data():{
-      normal:{pulls:0,dead:false}, hc:{pulls:0,dead:false}, mythic:{pulls:0,dead:false}
+  for (let b of r.bosses) {
+    const ref = doc(db, "progress", r.id + "_" + b.id);
+    const snap = await getDoc(ref);
+    const data = snap.exists() ? snap.data() : {
+      normal: { pulls: 0, dead: false },
+      hc: { pulls: 0, dead: false },
+      mythic: { pulls: 0, dead: false }
     };
-    const stat=data[difficulty];
-    total+=stat.pulls;
-    if(stat.dead) killed++;
 
-    html+=`
+    const stat = data[difficulty];
+    totalPulls += stat.pulls;
+    if (stat.dead) totalKilled++;
+
+    html += `
       <div class="boss">
         <span><img src="${b.icon}" width="32" height="32"> ${b.name}</span>
         <span>
-          ${isAdmin?`<input type="number" value="${stat.pulls}" onchange="updatePulls('${r.id}','${b.id}','${difficulty}',this.value)">`:stat.pulls}
-          ${isAdmin?`<button onclick="toggleDead('${r.id}','${b.id}','${difficulty}',${stat.dead})">${stat.dead?"Dead":"Alive"}</button>`:(stat.dead?"✔":"❌")}
+          ${isAdmin ? `<input type="number" value="${stat.pulls}" onchange="updatePulls('${r.id}','${b.id}','${difficulty}',this.value)">` : stat.pulls}
+          ${isAdmin ? `<button onclick="toggleDead('${r.id}','${b.id}','${difficulty}',${stat.dead})">${stat.dead ? "Dead" : "Alive"}</button>` : (stat.dead ? "✔" : "❌")}
         </span>
       </div>
     `;
   }
 
-  let percent=(killed/r.bosses.length)*100;
-  html+=`<p>Total Pulls: ${total}</p><div class="progress-container"><div class="progress-bar" style="width:${percent}%"></div></div></div>`;
-  document.getElementById("raidInfo").innerHTML=html;
+  const percentKilled = (totalKilled / r.bosses.length) * 100;
+  html += `
+    <p>Total Pulls: ${totalPulls}</p>
+    <div class="progress-container">
+      <div class="progress-bar" style="width:${percentKilled}%"></div>
+    </div>
+  </div>`;
+
+  document.getElementById("raidInfo").innerHTML = html;
 }
 
-window.updatePulls=async(raid,boss,diff,val)=>{
-  const ref=doc(db,"progress",raid+"_"+boss);
-  const snap=await getDoc(ref);
-  let data=snap.exists()?snap.data():{ normal:{pulls:0,dead:false}, hc:{pulls:0,dead:false}, mythic:{pulls:0,dead:false} };
-  data[diff].pulls=Number(val);
-  await setDoc(ref,data);
+// Funções para admin alterar pulls e dead
+window.updatePulls = async (raid, boss, diff, val) => {
+  const ref = doc(db, "progress", raid + "_" + boss);
+  const snap = await getDoc(ref);
+  let data = snap.exists() ? snap.data() : {
+    normal: { pulls: 0, dead: false },
+    hc: { pulls: 0, dead: false },
+    mythic: { pulls: 0, dead: false }
+  };
+  data[diff].pulls = Number(val);
+  await setDoc(ref, data);
   loadRaid(currentRaidIndex);
 }
 
-window.toggleDead=async(raid,boss,diff,current)=>{
-  const ref=doc(db,"progress",raid+"_"+boss);
-  const snap=await getDoc(ref);
-  let data=snap.exists()?snap.data():{ normal:{pulls:0,dead:false}, hc:{pulls:0,dead:false}, mythic:{pulls:0,dead:false} };
-  data[diff].dead=!current;
-  await setDoc(ref,data);
+window.toggleDead = async (raid, boss, diff, current) => {
+  const ref = doc(db, "progress", raid + "_" + boss);
+  const snap = await getDoc(ref);
+  let data = snap.exists() ? snap.data() : {
+    normal: { pulls: 0, dead: false },
+    hc: { pulls: 0, dead: false },
+    mythic: { pulls: 0, dead: false }
+  };
+  data[diff].dead = !current;
+  await setDoc(ref, data);
   loadRaid(currentRaidIndex);
 }
 
+// Carregar a primeira raid por padrão
 loadRaid(0);
+
 </script>
 
 </body>
