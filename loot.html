@@ -1,22 +1,28 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <title>Loot</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Loot</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-  <h1>Madness Guild</h1>
-  <a href="index.html">⬅ Voltar</a>
-</header>
+<div class="navbar">
+  <div class="logo">MADNESS</div>
+  <div class="links">
+    <a href="index.html">Informações</a>
+    <a href="progresso.html">Progresso</a>
+    <a href="loot.html">Loot</a>
+    <a href="admin.html">Admin</a>
+  </div>
+</div>
 
-<h1>Loot</h1>
+<div class="container">
 
 <input id="search" placeholder="Pesquisar...">
+<table id="table"></table>
 
-<table border="1" id="table"></table>
+</div>
 
 <script type="module">
 import { firebaseConfig } from "./config.js";
@@ -26,39 +32,36 @@ import { getFirestore, collection, getDocs } from "https://www.gstatic.com/fireb
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let data = [];
+let data=[];
 
 const snap = await getDocs(collection(db,"loot"));
-snap.forEach(doc=>{
-  data.push(doc.data());
-});
+snap.forEach(doc=>data.push(doc.data()));
 
 function render(list){
   table.innerHTML = `
-    <tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th></tr>
+  <tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th></tr>
   `;
   list.forEach(l=>{
     table.innerHTML += `
-      <tr>
-        <td>${l.player}</td>
-        <td>${l.item}</td>
-        <td>${l.type}</td>
-        <td>${l.date}</td>
-      </tr>
+    <tr>
+      <td>${l.player}</td>
+      <td>${l.item}</td>
+      <td>${l.type}</td>
+      <td>${l.date}</td>
+    </tr>
     `;
   });
 }
 
-render(data);
-
-document.getElementById("search").onkeyup = () => {
+search.onkeyup = ()=>{
   const v = search.value.toLowerCase();
-
   render(data.filter(l =>
     l.player.toLowerCase().includes(v) ||
     l.item.toLowerCase().includes(v)
   ));
-};
+}
+
+render(data);
 </script>
 
 </body>
