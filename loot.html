@@ -1,55 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
+  <meta charset="UTF-8">
   <title>Loot</title>
-  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <nav>
-    <a href="index.html">Informações</a>
-    <a href="progress.html">Progresso</a>
-    <a href="loot.html">Loot</a>
-  </nav>
+<body style="background:#0b0b0b;color:#c9a44e">
 
-  <h1>Loot</h1>
-  <input type="text" id="search" placeholder="Procurar...">
-  <div id="loot"></div>
+<h1>Loot</h1>
 
-  <script type="module" src="firebase.js"></script>
-  <script type="module">
-    import { db } from './firebase.js';
-    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<input id="search" placeholder="Pesquisar..." onkeyup="searchLoot()">
 
-    const lootDiv = document.getElementById("loot");
-    const search = document.getElementById("search");
+<table border="1" id="lootTable">
+  <tr>
+    <th>Player</th>
+    <th>Data</th>
+    <th>Item</th>
+    <th>Tipo</th>
+  </tr>
+</table>
 
-    let data = [];
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-    async function loadLoot() {
-      const snapshot = await getDocs(collection(db, "loot"));
-      data = [];
-      snapshot.forEach(doc => data.push(doc.data()));
-      render(data);
-    }
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDKwDmRaPgLUa2jB4MTq_OPAyehPnnVPO8",
+  authDomain: "madness-fe0a8.firebaseapp.com",
+  projectId: "madness-fe0a8",
+  storageBucket: "madness-fe0a8.firebasestorage.app",
+  messagingSenderId: "1043654768710",
+  appId: "1:1043654768710:web:91bf3c5d33aa6eac643247",
+  measurementId: "G-G0M19FBPZC"
+};
 
-    function render(list) {
-      lootDiv.innerHTML = "";
-      list.forEach(l => {
-        lootDiv.innerHTML += `
-          <div class="card">
-            <p>${l.player} - ${l.item}</p>
-            <small>${l.date}</small>
-          </div>
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let lootData = [];
+
+  const snapshot = await getDocs(collection(db, "loot"));
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    lootData.push(data);
+
+    document.getElementById("lootTable").innerHTML += `
+      <tr>
+        <td>${data.player}</td>
+        <td>${data.date}</td>
+        <td>${data.item}</td>
+        <td>${data.type}</td>
+      </tr>
+    `;
+  });
+
+  window.searchLoot = function () {
+    const value = document.getElementById("search").value.toLowerCase();
+
+    document.getElementById("lootTable").innerHTML = `
+      <tr>
+        <th>Player</th>
+        <th>Data</th>
+        <th>Item</th>
+        <th>Tipo</th>
+      </tr>
+    `;
+
+    lootData
+      .filter(l => 
+        l.player.toLowerCase().includes(value) ||
+        l.item.toLowerCase().includes(value) ||
+        l.date.includes(value)
+      )
+      .forEach(l => {
+        document.getElementById("lootTable").innerHTML += `
+          <tr>
+            <td>${l.player}</td>
+            <td>${l.date}</td>
+            <td>${l.item}</td>
+            <td>${l.type}</td>
+          </tr>
         `;
       });
-    }
+  }
+</script>
 
-    search.addEventListener("input", () => {
-      const val = search.value.toLowerCase();
-      render(data.filter(l => l.player.toLowerCase().includes(val) || l.item.toLowerCase().includes(val)));
-    });
-
-    loadLoot();
-  </script>
 </body>
 </html>
