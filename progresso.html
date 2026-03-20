@@ -16,7 +16,7 @@ body{
   position:fixed;
   top:0;
   width:100%;
-  background:#111 url('https://i.imgur.com/xXnP0hw.png') repeat-x;
+  background:#111;
   color: gold;
   padding:10px;
   display:flex;
@@ -159,13 +159,14 @@ async function loadRaid(idx){
     const ref = doc(db,"progress",raid.id+"_"+boss.id);
     const snap = await getDoc(ref);
     const data = snap.exists()?snap.data():{ pulls:0, dead:false };
-    totalPulls += data.pulls;
+    const pulls = Number(data.pulls) || 0;
+    totalPulls += pulls;
     if(data.dead) killedCount++;
 
     html += `<div class="boss">
       <span><img src="${boss.icon}" width="40" height="40"> ${boss.name}</span>
       <span>
-        ${isAdmin?`<input type="number" value="${data.pulls}" onchange="updatePulls('${raid.id}','${boss.id}',this.value)">`:data.pulls}
+        ${isAdmin?`<input type="number" value="${pulls}" onchange="updatePulls('${raid.id}','${boss.id}',this.value)">`:pulls}
         ${isAdmin?`<button onclick="toggleDead('${raid.id}','${boss.id}',${data.dead})">${data.dead?"☠️":"✔️"}</button>`:(data.dead?"☠️":"✔️")}
       </span>
     </div>`;
@@ -182,7 +183,7 @@ window.updatePulls=async(raid,boss,val)=>{
   const ref = doc(db,"progress",raid+"_"+boss);
   const snap = await getDoc(ref);
   const data = snap.exists()?snap.data():{ pulls:0, dead:false };
-  data.pulls = Number(val);
+  data.pulls = Number(val) || 0;
   await setDoc(ref,data);
   loadRaid(raids.findIndex(r=>r.id===raid));
 }
