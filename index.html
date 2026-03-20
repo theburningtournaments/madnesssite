@@ -2,39 +2,13 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <title>Madness Guild</title>
-
-  <style>
-    body {
-      background: #0b0b0b;
-      color: #c9a44e;
-      font-family: Arial;
-    }
-
-    header {
-      padding: 20px;
-      text-align: center;
-      font-size: 30px;
-      border-bottom: 2px solid #c9a44e;
-    }
-
-    .post {
-      border: 1px solid #c9a44e;
-      margin: 20px;
-      padding: 15px;
-    }
-
-    a {
-      color: #c9a44e;
-      margin: 10px;
-    }
-  </style>
+  <title>Madness</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
-  Madness Guild
-  <br>
+  <h1>Madness Guild</h1>
   <a href="index.html">Informações</a>
   <a href="progresso.html">Progresso</a>
   <a href="loot.html">Loot</a>
@@ -44,34 +18,25 @@
 <div id="posts"></div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { firebaseConfig } from "./config.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDKwDmRaPgLUa2jB4MTq_OPAyehPnnVPO8",
-  authDomain: "madness-fe0a8.firebaseapp.com",
-  projectId: "madness-fe0a8",
-  storageBucket: "madness-fe0a8.firebasestorage.app",
-  messagingSenderId: "1043654768710",
-  appId: "1:1043654768710:web:91bf3c5d33aa6eac643247",
-  measurementId: "G-G0M19FBPZC"
-};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const snap = await getDocs(collection(db, "posts"));
 
-  const querySnapshot = await getDocs(collection(db, "posts"));
-  querySnapshot.forEach((doc) => {
-    const post = doc.data();
-
-    document.getElementById("posts").innerHTML += `
-      <div class="post">
-        <h2>${post.title}</h2>
-        <p>${post.content}</p>
-        <small>${post.date}</small>
-      </div>
-    `;
-  });
+snap.forEach(doc => {
+  const p = doc.data();
+  document.getElementById("posts").innerHTML += `
+    <div class="box">
+      <h2>${p.title}</h2>
+      <p>${p.content}</p>
+      <small>${p.date}</small>
+    </div>
+  `;
+});
 </script>
 
 </body>
