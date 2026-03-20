@@ -14,6 +14,7 @@ body{background:#0b0b0b;color:gold;font-family:Arial,sans-serif;margin:0;padding
 .progress-container{background:#222;border-radius:5px;height:20px;margin-top:10px;}
 .progress-bar{height:100%;background:gold;border-radius:5px;}
 button,input{margin-left:5px;padding:3px;border-radius:5px;background:#111;color:gold;border:1px solid gold;}
+.raid-buttons button{margin:3px;}
 </style>
 </head>
 <body>
@@ -29,6 +30,7 @@ button,input{margin-left:5px;padding:3px;border-radius:5px;background:#111;color
 </div>
 
 <div class="container">
+  <div class="raid-buttons card" id="raidButtons"></div>
   <div id="raidInfo"></div>
 </div>
 
@@ -42,7 +44,7 @@ const db = getFirestore(app);
 const isAdmin = localStorage.getItem("admin") === "true";
 
 const raids=[
-  { id:"dreamrift", name:"The Dreamrift", bosses:[{id:"chimaerus",name:"Chimaerus",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_chimaerus.jpg"}]},
+  { id:"dreamrift", name:"The Dreamrift", bosses:[{id:"chimaerus",name:"Chimaerus",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_misc_monsterhead_04.jpg"}]},
   { id:"voidspire", name:"The Voidspire", bosses:[
     {id:"averzian",name:"Averzian",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_averzian.jpg"},
     {id:"vorasius",name:"Vorasius",icon:"https://wow.zamimg.com/images/wow/icons/large/inv_boss_vorasius.jpg"},
@@ -57,56 +59,61 @@ const raids=[
   ]}
 ];
 
-async function loadProgress(){
-  let html="";
-  for(const raid of raids){
-    html+=`<div class="card"><h2>${raid.name}</h2>`;
-    let totalPulls=0;
-    let killedCount=0;
+const raidButtonsDiv = document.getElementById("raidButtons");
+raids.forEach((raid, idx)=>{
+  const btn = document.createElement("button");
+  btn.innerText = raid.name;
+  btn.onclick = ()=>loadRaid(idx);
+  raidButtonsDiv.appendChild(btn);
+});
 
-    for(const boss of raid.bosses){
-      const ref=doc(db,"progress",raid.id+"_"+boss.id);
-      const snap=await getDoc(ref);
-      const data=snap.exists()?snap.data():{ pulls:0, dead:false };
-      totalPulls+=data.pulls;
-      if(data.dead) killedCount++;
+async function loadRaid(idx){
+  const raid = raids[idx];
+  let html = `<div class="card"><h2>${raid.name}</h2>`;
+  let totalPulls = 0;
+  let killedCount = 0;
 
-      html+=`<div class="boss">
-        <span><img src="${boss.icon}" width="32" height="32"> ${boss.name}</span>
-        <span>
-          ${isAdmin?`<input type="number" value="${data.pulls}" onchange="updatePulls('${raid.id}','${boss.id}',this.value)">`:data.pulls}
-          ${isAdmin?`<button onclick="toggleDead('${raid.id}','${boss.id}',${data.dead})">${data.dead?"Dead":"Alive"}</button>`:(data.dead?"✔":"❌")}
-        </span>
-      </div>`;
-    }
+  for(const boss of raid.bosses){
+    const ref = doc(db,"progress",raid.id+"_"+boss.id);
+    const snap = await getDoc(ref);
+    const data = snap.exists()?snap.data():{ pulls:0, dead:false };
+    totalPulls += data.pulls;
+    if(data.dead) killedCount++;
 
-    const percent=(killedCount/raid.bosses.length)*100;
-    html+=`<p>Total Pulls: ${totalPulls}</p>
-           <div class="progress-container"><div class="progress-bar" style="width:${percent}%"></div></div></div>`;
+    html += `<div class="boss">
+      <span><img src="${boss.icon}" width="32" height="32"> ${boss.name}</span>
+      <span>
+        ${isAdmin?`<input type="number" value="${data.pulls}" onchange="updatePulls('${raid.id}','${boss.id}',this.value)">`:data.pulls}
+        ${isAdmin?`<button onclick="toggleDead('${raid.id}','${boss.id}',${data.dead})">${data.dead?"Dead":"Alive"}</button>`:(data.dead?"✔":"❌")}
+      </span>
+    </div>`;
   }
-  document.getElementById("raidInfo").innerHTML=html;
+
+  const percent=(killedCount/raid.bosses.length)*100;
+  html += `<p>Total Pulls: ${totalPulls}</p>
+           <div class="progress-container"><div class="progress-bar" style="width:${percent}%"></div></div></div>`;
+
+  document.getElementById("raidInfo").innerHTML = html;
 }
 
 window.updatePulls=async(raid,boss,val)=>{
-  const ref=doc(db,"progress",raid+"_"+boss);
-  const snap=await getDoc(ref);
-  const data=snap.exists()?snap.data():{ pulls:0, dead:false };
-  data.pulls=Number(val);
+  const ref = doc(db,"progress",raid+"_"+boss);
+  const snap = await getDoc(ref);
+  const data = snap.exists()?snap.data():{ pulls:0, dead:false };
+  data.pulls = Number(val);
   await setDoc(ref,data);
-  loadProgress();
+  loadRaid(raids.findIndex(r=>r.id===raid));
 }
 
 window.toggleDead=async(raid,boss,current)=>{
-  const ref=doc(db,"progress",raid+"_"+boss);
-  const snap=await getDoc(ref);
-  const data=snap.exists()?snap.data():{ pulls:0, dead:false };
-  data.dead=!current;
+  const ref = doc(db,"progress",raid+"_"+boss);
+  const snap = await getDoc(ref);
+  const data = snap.exists()?snap.data():{ pulls:0, dead:false };
+  data.dead = !current;
   await setDoc(ref,data);
-  loadProgress();
+  loadRaid(raids.findIndex(r=>r.id===raid));
 }
 
-loadProgress();
 </script>
-
 </body>
 </html>
