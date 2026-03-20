@@ -1,13 +1,45 @@
-<div class="container">
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Loot - Madness</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body{background:#0b0b0b;color:gold;font-family:Arial,sans-serif;margin:0;padding:0;}
+.navbar{position:fixed;top:0;width:100%;background:#111;color:gold;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:1000;}
+.navbar .links a{color:gold;margin-left:15px;text-decoration:none;font-weight:bold;}
+.container{margin-top:70px;padding:20px;}
+.card{background:#1c1c1c;padding:15px;margin-bottom:20px;border-radius:8px;border:1px solid gold;}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:8px;text-align:left;border-bottom:1px solid gold;}
+th{background:#222;}
+tr:nth-child(even){background:#1c1c1c;}
+tr:nth-child(odd){background:#111;}
+button,input{margin:3px;padding:5px;border-radius:5px;background:#111;color:gold;border:1px solid gold;}
+</style>
+</head>
+<body>
 
-<input id="search" placeholder="Pesquisar..." style="margin-bottom:15px; padding:10px; width:100%; border-radius:5px; border:1px solid gold; background:black; color:gold;">
+<div class="navbar">
+  <div class="logo">MADNESS</div>
+  <div class="links">
+    <a href="index.html">Informações</a>
+    <a href="progresso.html">Progresso</a>
+    <a href="loot.html">Loot</a>
+    <a href="admin.html">Admin</a>
+  </div>
+</div>
+
+<div class="container">
+<input id="search" placeholder="Pesquisar..." style="width:250px;">
+<button id="importBtn">Importar Excel</button>
 
 <div id="adminLootBox" class="card" style="display:none;">
-  <h2>Adicionar Loot (Admin)</h2>
-  <input id="lootPlayer" placeholder="Player">
-  <input id="lootItem" placeholder="Item">
-  <input id="lootType" placeholder="Tipo">
-  <button id="addLootBtn">Adicionar Loot</button>
+<h2>Adicionar Loot (Admin)</h2>
+<input id="lootPlayer" placeholder="Player">
+<input id="lootItem" placeholder="Item">
+<input id="lootType" placeholder="Tipo">
+<button id="addLootBtn">Adicionar Loot</button>
 </div>
 
 <table id="table"></table>
@@ -20,35 +52,27 @@ import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.c
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
-const isAdmin = localStorage.getItem("admin") === "true";
-if(isAdmin) adminLootBox.style.display="block";
+const isAdmin = localStorage.getItem("admin")==="true";
+if(isAdmin) document.getElementById("adminLootBox").style.display="block";
 
 let data=[];
-
 const snap = await getDocs(collection(db,"loot"));
 snap.forEach(doc=>data.push(doc.data()));
 
 function render(list){
-  table.innerHTML = `
-  <tr style="background:#2b0000; color:gold;">
-    <th>Player</th><th>Item</th><th>Tipo</th><th>Data</th>
-  </tr>`;
+  table.innerHTML = `<tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th></tr>`;
   list.forEach((l,i)=>{
-    table.innerHTML += `
-    <tr style="background:${i%2===0?'rgba(0,0,0,0.7)':'rgba(0,0,0,0.5)'}; color:#f0d36b; border-bottom:1px solid gold;">
-      <td>${l.player}</td><td>${l.item}</td><td>${l.type}</td><td>${l.date}</td>
-    </tr>
-    `;
+    table.innerHTML += `<tr>
+      <td>${l.player}</td>
+      <td>${l.item}</td>
+      <td>${l.type}</td>
+      <td>${l.date}</td>
+    </tr>`;
   });
 }
-
-search.onkeyup = ()=> {
-  const v=search.value.toLowerCase();
-  render(data.filter(l=>l.player.toLowerCase().includes(v)||l.item.toLowerCase().includes(v)));
-}
-
 render(data);
+
+search.onkeyup=()=>render(data.filter(l=>l.player.toLowerCase().includes(search.value.toLowerCase())||l.item.toLowerCase().includes(search.value.toLowerCase())));
 
 addLootBtn.onclick=async()=>{
   await addDoc(collection(db,"loot"),{
@@ -60,4 +84,10 @@ addLootBtn.onclick=async()=>{
   alert("Loot adicionado!");
   location.reload();
 }
+
+// Função importar Excel (necessita XLSX.js)
+import * as XLSX from "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.mjs";
+importBtn.onclick=()=>{ alert("Implementar import Excel com XLSX.js"); }
 </script>
+</body>
+</html>
