@@ -1,39 +1,96 @@
 <!DOCTYPE html>
 <html lang="pt">
-  <header>
-  <h1>Madness Guild</h1>
-  <a href="index.html">Informações</a>
-  <a href="progresso.html">Progresso</a>
-  <a href="loot.html">Loot</a>
-</header>
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Login</title>
+<meta charset="UTF-8">
+<title>Admin</title>
+<link rel="stylesheet" href="style.css">
 </head>
-<body style="background:#0b0b0b;color:#c9a44e">
+<body>
 
-<h2>Login Admin</h2>
+<div class="navbar">
+  <div class="logo">MADNESS</div>
+  <div class="links">
+    <a href="index.html">Informações</a>
+    <a href="progresso.html">Progresso</a>
+    <a href="loot.html">Loot</a>
+  </div>
+</div>
 
-<input id="email" placeholder="Email"><br><br>
-<input id="pass" type="password" placeholder="Password"><br><br>
-<button id="loginBtn">Login</button>
+<div class="container">
+
+<div id="loginBox" class="card">
+  <h2>Login</h2>
+  <input id="email">
+  <input id="pass" type="password">
+  <button id="loginBtn">Login</button>
+</div>
+
+<div id="dashboard" class="card" style="display:none;">
+  <h2>Dashboard</h2>
+  <button id="logoutBtn">Logout</button>
+
+  <h3>Post</h3>
+  <input id="title">
+  <textarea id="content"></textarea>
+  <button id="postBtn">Criar</button>
+
+  <h3>Loot</h3>
+  <input id="player">
+  <input id="item">
+  <input id="type">
+  <button id="lootBtn">Adicionar</button>
+</div>
+
+</div>
 
 <script type="module">
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-document.getElementById("loginBtn").onclick = () => {
-  signInWithEmailAndPassword(auth, email.value, pass.value)
-    .then(() => {
-      localStorage.setItem("admin","true");
-      alert("Login feito");
-    })
-    .catch(e => alert(e.message));
-};
+if(localStorage.getItem("admin")){
+  loginBox.style.display="none";
+  dashboard.style.display="block";
+}
+
+loginBtn.onclick=()=>{
+  signInWithEmailAndPassword(auth,email.value,pass.value)
+  .then(()=>{
+    localStorage.setItem("admin","true");
+    location.reload();
+  });
+}
+
+logoutBtn.onclick=()=>{
+  signOut(auth).then(()=>{
+    localStorage.removeItem("admin");
+    location.reload();
+  });
+}
+
+postBtn.onclick=async()=>{
+  await addDoc(collection(db,"posts"),{
+    title:title.value,
+    content:content.value,
+    date:new Date().toLocaleDateString()
+  });
+  alert("Post criado");
+}
+
+lootBtn.onclick=async()=>{
+  await addDoc(collection(db,"loot"),{
+    player:player.value,
+    item:item.value,
+    type:type.value,
+    date:new Date().toLocaleDateString()
+  });
+  alert("Loot adicionado");
+}
 </script>
 
 </body>
