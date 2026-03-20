@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <title>Madness</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Madness</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-  <h1>Madness Guild</h1>
-  <a href="index.html">Informações</a>
-  <a href="progresso.html">Progresso</a>
-  <a href="loot.html">Loot</a>
-  <a href="admin.html">Admin</a>
-</header>
+<div class="navbar">
+  <div class="logo">MADNESS</div>
+  <div class="links">
+    <a href="index.html">Informações</a>
+    <a href="progresso.html">Progresso</a>
+    <a href="loot.html">Loot</a>
+    <a href="admin.html">Admin</a>
+  </div>
+</div>
 
-<div id="posts"></div>
+<div class="container">
+  <div id="posts"></div>
+</div>
 
 <script type="module">
 import { firebaseConfig } from "./config.js";
@@ -25,12 +29,13 @@ import { getFirestore, collection, getDocs } from "https://www.gstatic.com/fireb
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const snap = await getDocs(collection(db, "posts"));
+const snap = await getDocs(collection(db,"posts"));
 
-snap.forEach(doc => {
+snap.forEach(doc=>{
   const p = doc.data();
-  document.getElementById("posts").innerHTML += `
-    <div class="box">
+
+  posts.innerHTML += `
+    <div class="card">
       <h2>${p.title}</h2>
       <p>${p.content}</p>
       <small>${p.date}</small>
