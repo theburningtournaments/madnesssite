@@ -1,36 +1,28 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-<meta charset="UTF-8">
-<title>Loot</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<div class="navbar">
-  <div class="logo">MADNESS</div>
-  <div class="links">
-    <a href="index.html">Informações</a>
-    <a href="progresso.html">Progresso</a>
-    <a href="loot.html">Loot</a>
-    <a href="admin.html">Admin</a>
-  </div>
-</div>
-
 <div class="container">
 
-<input id="search" placeholder="Pesquisar...">
-<table id="table"></table>
+<input id="search" placeholder="Pesquisar..." style="margin-bottom:15px; padding:10px; width:100%; border-radius:5px; border:1px solid gold; background:black; color:gold;">
 
+<div id="adminLootBox" class="card" style="display:none;">
+  <h2>Adicionar Loot (Admin)</h2>
+  <input id="lootPlayer" placeholder="Player">
+  <input id="lootItem" placeholder="Item">
+  <input id="lootType" placeholder="Tipo">
+  <button id="addLootBtn">Adicionar Loot</button>
+</div>
+
+<table id="table"></table>
 </div>
 
 <script type="module">
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+const isAdmin = localStorage.getItem("admin") === "true";
+if(isAdmin) adminLootBox.style.display="block";
 
 let data=[];
 
@@ -39,30 +31,33 @@ snap.forEach(doc=>data.push(doc.data()));
 
 function render(list){
   table.innerHTML = `
-  <tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th></tr>
-  `;
-  list.forEach(l=>{
+  <tr style="background:#2b0000; color:gold;">
+    <th>Player</th><th>Item</th><th>Tipo</th><th>Data</th>
+  </tr>`;
+  list.forEach((l,i)=>{
     table.innerHTML += `
-    <tr>
-      <td>${l.player}</td>
-      <td>${l.item}</td>
-      <td>${l.type}</td>
-      <td>${l.date}</td>
+    <tr style="background:${i%2===0?'rgba(0,0,0,0.7)':'rgba(0,0,0,0.5)'}; color:#f0d36b; border-bottom:1px solid gold;">
+      <td>${l.player}</td><td>${l.item}</td><td>${l.type}</td><td>${l.date}</td>
     </tr>
     `;
   });
 }
 
-search.onkeyup = ()=>{
-  const v = search.value.toLowerCase();
-  render(data.filter(l =>
-    l.player.toLowerCase().includes(v) ||
-    l.item.toLowerCase().includes(v)
-  ));
+search.onkeyup = ()=> {
+  const v=search.value.toLowerCase();
+  render(data.filter(l=>l.player.toLowerCase().includes(v)||l.item.toLowerCase().includes(v)));
 }
 
 render(data);
-</script>
 
-</body>
-</html>
+addLootBtn.onclick=async()=>{
+  await addDoc(collection(db,"loot"),{
+    player: lootPlayer.value,
+    item: lootItem.value,
+    type: lootType.value,
+    date: new Date().toLocaleDateString()
+  });
+  alert("Loot adicionado!");
+  location.reload();
+}
+</script>
