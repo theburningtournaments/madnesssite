@@ -3,42 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <title>Madness Guild</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <nav>
-    <a href="index.html">Informações</a>
-    <a href="progress.html">Progresso</a>
-    <a href="loot.html">Loot</a>
-    <a href="login.html">Admin</a>
-  </nav>
 
-  <h1>Madness Guild</h1>
-  <div id="posts"></div>
-
-  <script type="module" src="firebase.js"></script>
-  <script type="module">
-    import { db } from './firebase.js';
-    import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const postsDiv = document.getElementById("posts");
-
-    async function loadPosts() {
-      const querySnapshot = await getDocs(collection(db, "posts"));
-      postsDiv.innerHTML = "";
-      querySnapshot.forEach((doc) => {
-        const post = doc.data();
-        postsDiv.innerHTML += `
-          <div class="card">
-            <h2>${post.title}</h2>
-            <p>${post.content}</p>
-            <small>${post.date}</small>
-          </div>
-        `;
-      });
+  <style>
+    body {
+      background: #0b0b0b;
+      color: #c9a44e;
+      font-family: Arial;
     }
 
-    loadPosts();
-  </script>
+    header {
+      padding: 20px;
+      text-align: center;
+      font-size: 30px;
+      border-bottom: 2px solid #c9a44e;
+    }
+
+    .post {
+      border: 1px solid #c9a44e;
+      margin: 20px;
+      padding: 15px;
+    }
+
+    a {
+      color: #c9a44e;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  Madness Guild
+  <br>
+  <a href="index.html">Informações</a>
+  <a href="progresso.html">Progresso</a>
+  <a href="loot.html">Loot</a>
+  <a href="admin.html">Admin</a>
+</header>
+
+<div id="posts"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDKwDmRaPgLUa2jB4MTq_OPAyehPnnVPO8",
+  authDomain: "madness-fe0a8.firebaseapp.com",
+  projectId: "madness-fe0a8",
+  storageBucket: "madness-fe0a8.firebasestorage.app",
+  messagingSenderId: "1043654768710",
+  appId: "1:1043654768710:web:91bf3c5d33aa6eac643247",
+  measurementId: "G-G0M19FBPZC"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const querySnapshot = await getDocs(collection(db, "posts"));
+  querySnapshot.forEach((doc) => {
+    const post = doc.data();
+
+    document.getElementById("posts").innerHTML += `
+      <div class="post">
+        <h2>${post.title}</h2>
+        <p>${post.content}</p>
+        <small>${post.date}</small>
+      </div>
+    `;
+  });
+</script>
+
 </body>
 </html>
