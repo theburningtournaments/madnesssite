@@ -3,29 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <title>Admin</title>
-  <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body style="background:#0b0b0b;color:#c9a44e">
 
 <h2>Login</h2>
-<input id="email" placeholder="Email">
-<input id="pass" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
+
+<input id="email" placeholder="Email"><br>
+<input id="pass" type="password" placeholder="Password"><br>
+<button id="loginBtn">Login</button>
 
 <hr>
 
 <h2>Criar Post</h2>
-<input id="title" placeholder="Título">
-<textarea id="content"></textarea>
-<button onclick="addPost()">Publicar</button>
+
+<input id="title" placeholder="Título"><br>
+<textarea id="content"></textarea><br>
+<button id="postBtn">Publicar</button>
 
 <hr>
 
 <h2>Adicionar Loot</h2>
-<input id="player" placeholder="Player">
-<input id="item" placeholder="Item">
-<input id="type" placeholder="Tipo">
-<button onclick="addLoot()">Adicionar</button>
+
+<input id="player" placeholder="Player"><br>
+<input id="item" placeholder="Item"><br>
+<input id="type" placeholder="Tipo"><br>
+<button id="lootBtn">Adicionar</button>
 
 <script type="module">
 import { firebaseConfig } from "./config.js";
@@ -37,33 +39,45 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-window.login = function(){
-  signInWithEmailAndPassword(
-    auth,
-    email.value,
-    pass.value
-  ).then(()=> alert("OK"))
-   .catch(e=>alert(e.message));
-}
+// LOGIN
+document.getElementById("loginBtn").onclick = () => {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("pass").value;
 
-window.addPost = async function(){
+  signInWithEmailAndPassword(auth, email, pass)
+    .then(() => alert("Login OK"))
+    .catch(e => alert(e.message));
+};
+
+// POST
+document.getElementById("postBtn").onclick = async () => {
+  const title = document.getElementById("title").value;
+  const content = document.getElementById("content").value;
+
   await addDoc(collection(db,"posts"),{
-    title: title.value,
-    content: content.value,
+    title,
+    content,
     date: new Date().toLocaleDateString()
   });
-  alert("Post criado");
-}
 
-window.addLoot = async function(){
+  alert("Post criado");
+};
+
+// LOOT
+document.getElementById("lootBtn").onclick = async () => {
+  const player = document.getElementById("player").value;
+  const item = document.getElementById("item").value;
+  const type = document.getElementById("type").value;
+
   await addDoc(collection(db,"loot"),{
-    player: player.value,
-    item: item.value,
-    type: type.value,
+    player,
+    item,
+    type,
     date: new Date().toLocaleDateString()
   });
+
   alert("Loot adicionado");
-}
+};
 </script>
 
 </body>
