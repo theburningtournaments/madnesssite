@@ -5,16 +5,98 @@
 <title>Progresso - Madness</title>
 <link rel="stylesheet" href="style.css">
 <style>
-body{background:#0b0b0b;color:gold;font-family:Arial,sans-serif;margin:0;padding:0;}
-.navbar{position:fixed;top:0;width:100%;background:#111;color:gold;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:1000;}
-.navbar .links a{color:gold;margin-left:15px;text-decoration:none;font-weight:bold;}
-.container{margin-top:70px;padding:20px;}
-.card{background:#1c1c1c;padding:15px;margin-bottom:20px;border-radius:8px;border:1px solid gold;}
-.boss{display:flex;justify-content:space-between;align-items:center;margin:5px 0;}
-.progress-container{background:#222;border-radius:5px;height:20px;margin-top:10px;}
-.progress-bar{height:100%;background:gold;border-radius:5px;}
-button,input{margin-left:5px;padding:3px;border-radius:5px;background:#111;color:gold;border:1px solid gold;}
-.raid-buttons button{margin:3px;}
+body{
+  background: linear-gradient(to bottom, #0a0a0a, #111);
+  color: gold;
+  font-family: "Friz Quadrata", Arial, sans-serif;
+  margin:0;
+  padding:0;
+}
+.navbar{
+  position:fixed;
+  top:0;
+  width:100%;
+  background:#111 url('https://i.imgur.com/xXnP0hw.png') repeat-x;
+  color: gold;
+  padding:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom: 3px solid gold;
+  z-index:1000;
+}
+.navbar .links a{
+  color:gold;
+  margin-left:15px;
+  text-decoration:none;
+  font-weight:bold;
+  transition:0.3s;
+}
+.navbar .links a:hover{
+  color:#ffd700;
+  text-shadow: 0 0 5px #ffd700;
+}
+.container{
+  margin-top:70px;
+  padding:20px;
+}
+.card{
+  background: linear-gradient(145deg,#1b1b1b,#111);
+  padding:20px;
+  margin-bottom:20px;
+  border-radius:10px;
+  border:2px solid gold;
+  box-shadow: 0 0 15px rgba(255,215,0,0.2);
+}
+.boss{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:8px 0;
+  padding:5px;
+  border-bottom:1px solid #333;
+}
+.boss img{
+  width:40px;
+  height:40px;
+  border:1px solid gold;
+  border-radius:5px;
+  margin-right:10px;
+  transition:0.3s;
+}
+.boss:hover img{
+  transform: scale(1.1);
+  box-shadow:0 0 10px #ffd700;
+}
+.progress-container{
+  background:#222;
+  border-radius:5px;
+  height:20px;
+  margin-top:10px;
+}
+.progress-bar{
+  height:100%;
+  background: linear-gradient(to right,#ffd700,#ffdd55);
+  border-radius:5px;
+  transition: width 0.5s ease-in-out;
+}
+button,input{
+  margin-left:5px;
+  padding:4px 8px;
+  border-radius:5px;
+  background:#111;
+  color:gold;
+  border:1px solid gold;
+  cursor:pointer;
+  transition:0.3s;
+}
+button:hover{
+  background:#222;
+  box-shadow:0 0 8px #ffd700;
+}
+.raid-buttons button{
+  margin:3px;
+}
 </style>
 </head>
 <body>
@@ -81,10 +163,10 @@ async function loadRaid(idx){
     if(data.dead) killedCount++;
 
     html += `<div class="boss">
-      <span><img src="${boss.icon}" width="32" height="32"> ${boss.name}</span>
+      <span><img src="${boss.icon}" width="40" height="40"> ${boss.name}</span>
       <span>
         ${isAdmin?`<input type="number" value="${data.pulls}" onchange="updatePulls('${raid.id}','${boss.id}',this.value)">`:data.pulls}
-        ${isAdmin?`<button onclick="toggleDead('${raid.id}','${boss.id}',${data.dead})">${data.dead?"Dead":"Alive"}</button>`:(data.dead?"✔":"❌")}
+        ${isAdmin?`<button onclick="toggleDead('${raid.id}','${boss.id}',${data.dead})">${data.dead?"☠️":"✔️"}</button>`:(data.dead?"☠️":"✔️")}
       </span>
     </div>`;
   }
@@ -113,7 +195,6 @@ window.toggleDead=async(raid,boss,current)=>{
   await setDoc(ref,data);
   loadRaid(raids.findIndex(r=>r.id===raid));
 }
-
 </script>
 </body>
 </html>
