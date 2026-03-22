@@ -40,6 +40,7 @@ img.postImage { width:80px; height:auto; border-radius:4px; }
     <div class="menu-item" data-section="players">👥 Players</div>
     <div class="menu-item" data-section="bank">🏦 Guild Bank</div>
     <div class="menu-item" data-section="posts">📝 Posts</div>
+    <div class="menu-item" id="infoPageBtn">🌐 Página de Informações</div>
     <button id="sidebarLogout">Logout</button>
   </div>
 
@@ -148,6 +149,7 @@ document.getElementById("loginBtn").onclick = async () => {
     await signInWithEmailAndPassword(auth,email,pass);
     loginForm.style.display="none";
     adminContent.style.display="block";
+    localStorage.setItem("admin","true");
     loadAllData();
     initMenu();
   } catch(e){ alert("Email ou senha incorretos!"); }
@@ -156,6 +158,7 @@ document.getElementById("loginBtn").onclick = async () => {
 // LOGOUT
 document.getElementById("sidebarLogout").onclick = async () => {
   await signOut(auth);
+  localStorage.removeItem("admin");
   window.location.href="index.html";
 };
 
@@ -174,9 +177,15 @@ function initMenu(){
       if(item.dataset.section==="posts") postsSection.style.display="flex";
     };
   });
+
+  // Página de informações mantendo login
+  document.getElementById("infoPageBtn").onclick = ()=>{
+    localStorage.setItem("admin","true");
+    window.location.href="index.html";
+  };
 }
 
-// UPDATE DASHBOARD
+// DASHBOARD UPDATE
 async function updateDashboard(){
   const postsSnap = await getDocs(collection(db,"posts"));
   const lootSnap = await getDocs(collection(db,"loot"));
@@ -293,7 +302,8 @@ async function loadPosts(){
     tbody.appendChild(tr);
   });
 }
-document.getElementById("addPostBtn").onclick=async()=>{
+
+document.getElementById("addPostBtn").addEventListener("click", async ()=>{
   const t=document.getElementById("postTitle").value;
   const c=document.getElementById("postContent").value;
   const fileInput=document.getElementById("postImage");
@@ -312,7 +322,7 @@ document.getElementById("addPostBtn").onclick=async()=>{
   fileInput.value="";
   loadPosts();
   updateDashboard();
-};
+});
 
 // RAID CHART
 async function loadRaidCharts(){
@@ -326,14 +336,15 @@ async function loadRaidCharts(){
     labels.push(raid);
     progresses.push(total?Math.round((killed/total)*100):0);
   });
-  new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Progresso (%)',data:progresses,borderColor:'gold',backgroundColor:'rgba(255,215,0,0.2)',tension:0.3,fill:true}]},options:{responsive:true,scales:{y:{beginAtZero:true,max:100}}}});
+  new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Progresso (%)',data:progresses,borderColor:'gold',backgroundColor:'rgba(255,215,0,0.2)',fill:true}]},options:{responsive:true,scales:{y:{beginAtZero:true,max:100}}}});
 }
 
-// ON AUTH
-onAuthStateChanged(auth,user=>{
+// MANTER LOGIN
+onAuthStateChanged(auth, (user)=>{
   if(user){
     loginForm.style.display="none";
     adminContent.style.display="block";
+    localStorage.setItem("admin","true");
     loadAllData();
     initMenu();
   }
