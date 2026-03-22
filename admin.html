@@ -107,7 +107,7 @@ img.postImage { width:80px; height:auto; border-radius:4px; }
       <h3>Posts</h3>
       <input id="postTitle" placeholder="Título">
       <textarea id="postContent" placeholder="Conteúdo"></textarea>
-      <input type="file" id="postImage" accept="image/*">
+      <input type="text" id="postImageURL" placeholder="URL da imagem (opcional)">
       <button id="addPostBtn">Publicar</button>
       <table id="postsTable">
         <thead><tr><th>Título</th><th>Conteúdo</th><th>Imagem</th><th>Ações</th></tr></thead>
@@ -123,12 +123,10 @@ import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-const storage = getStorage(app);
 
 const loginForm = document.getElementById("loginForm");
 const adminContent = document.getElementById("adminContent");
@@ -306,20 +304,13 @@ async function loadPosts(){
 document.getElementById("addPostBtn").addEventListener("click", async ()=>{
   const t=document.getElementById("postTitle").value;
   const c=document.getElementById("postContent").value;
-  const fileInput=document.getElementById("postImage");
+  const imageURL=document.getElementById("postImageURL").value.trim();
   if(!t||!c){alert("Preencha título e conteúdo!"); return;}
-  let imageURL="";
-  if(fileInput.files.length>0){
-    const file=fileInput.files[0];
-    const storageRef=ref(storage,`posts/${Date.now()}_${file.name}`);
-    await uploadBytes(storageRef,file);
-    imageURL=await getDownloadURL(storageRef);
-  }
   const id=t+"_"+Date.now();
   await setDoc(doc(db,"posts",id),{title:t,content:c,imageURL,date:new Date().toISOString()});
   document.getElementById("postTitle").value="";
   document.getElementById("postContent").value="";
-  fileInput.value="";
+  document.getElementById("postImageURL").value="";
   loadPosts();
   updateDashboard();
 });
@@ -341,13 +332,7 @@ async function loadRaidCharts(){
 
 // MANTER LOGIN
 onAuthStateChanged(auth,(user)=>{
-  if(user){
-    loginForm.style.display="none";
-    adminContent.style.display="block";
-    localStorage.setItem("admin","true");
-    loadAllData();
-    initMenu();
-  }
+  if(user){ loginForm.style.display="none"; adminContent.style.display="block"; localStorage.setItem("admin","true"); loadAllData(); initMenu();}
 });
 </script>
 </body>
