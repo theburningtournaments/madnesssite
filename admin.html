@@ -121,7 +121,7 @@ th, td {
 <body>
 
 <div class="navbar">
-  <div>ADMIN</div>
+  <div>MADNESS ADMIN</div>
 </div>
 
 <!-- LOGIN -->
@@ -275,7 +275,7 @@ function initMenu() {
   });
 }
 
-// LOAD DATA
+// LOAD ALL
 async function loadAllData(){
   await loadLoot();
   await loadPlayers();
@@ -295,7 +295,16 @@ async function loadLoot(){
   });
 }
 document.getElementById("addLootBtn").onclick=async()=>{
-  await addDoc(collection(db,"loot"),{player:lootPlayer.value,item:lootItem.value,type:lootType.value,date:lootDate.value});
+  const p = document.getElementById("lootPlayer").value;
+  const i = document.getElementById("lootItem").value;
+  const t = document.getElementById("lootType").value;
+  const d = document.getElementById("lootDate").value;
+  if(!p||!i||!t||!d){alert("Preencha todos os campos!"); return;}
+  await addDoc(collection(db,"loot"),{player:p,item:i,type:t,date:d});
+  document.getElementById("lootPlayer").value="";
+  document.getElementById("lootItem").value="";
+  document.getElementById("lootType").value="";
+  document.getElementById("lootDate").value="";
   loadLoot();
 };
 
@@ -311,7 +320,10 @@ async function loadPlayers(){
   });
 }
 document.getElementById("addPlayerBtn").onclick=async()=>{
-  await addDoc(collection(db,"players"),{name:playerName.value,class:playerClass.value,ilvl:playerIlvl.value,enchats:playerEnchats.value});
+  const n=playerName.value; const c=playerClass.value; const il=playerIlvl.value; const e=playerEnchats.value;
+  if(!n||!c||!il){alert("Preencha todos os campos!"); return;}
+  await addDoc(collection(db,"players"),{name:n,class:c,ilvl:il,enchats:e});
+  playerName.value=""; playerClass.value=""; playerIlvl.value=""; playerEnchats.value="";
   loadPlayers();
 };
 
@@ -327,14 +339,17 @@ async function loadBank(){
   });
 }
 document.getElementById("addBankBtn").onclick=async()=>{
-  await addDoc(collection(db,"bank"),{player:bankPlayer.value,goldPlayer:bankGoldPlayer.value,goldGuild:bankGoldGuild.value,item:bankItem.value,date:bankDate.value});
+  const p=bankPlayer.value; const gp=bankGoldPlayer.value; const gg=bankGoldGuild.value; const it=bankItem.value; const d=bankDate.value;
+  if(!p||!gp||!gg||!it||!d){alert("Preencha todos os campos!"); return;}
+  await addDoc(collection(db,"bank"),{player:p,goldPlayer:gp,goldGuild:gg,item:it,date:d});
+  bankPlayer.value=""; bankGoldPlayer.value=""; bankGoldGuild.value=""; bankItem.value=""; bankDate.value="";
   loadBank();
 };
 
 // RAIDS CHART
 async function loadRaidCharts(){
-  const raids = ["dreamrift","voidspire","quelthanas"];
-  const ctx = document.getElementById('raidChart').getContext('2d');
+  const raids=["dreamrift","voidspire","quelthanas"];
+  const ctx=document.getElementById('raidChart').getContext('2d');
   const labels=[]; const progresses=[];
   const snap=await getDocs(collection(db,"progress"));
   raids.forEach(raid=>{
@@ -346,7 +361,7 @@ async function loadRaidCharts(){
   new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Progresso (%)',data:progresses,borderColor:'gold',backgroundColor:'rgba(255,215,0,0.2)',tension:0.3,fill:true}]},options:{responsive:true,scales:{y:{beginAtZero:true,max:100}}}});
 }
 
-// ON AUTH CHANGE
+// ON AUTH
 onAuthStateChanged(auth,user=>{
   if(user){
     loginForm.style.display="none";
