@@ -3,141 +3,184 @@
 <head>
 <meta charset="UTF-8">
 <title>Admin - Madness</title>
+<link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-/* BACKGROUND */
 body {
+  background: linear-gradient(to bottom, #0a0a0a, #111);
+  color: gold;
+  font-family: "Friz Quadrata", Arial, sans-serif;
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #0f172a, #020617);
-  color: white;
+  padding: 0;
 }
 
-/* NAVBAR (mantida) */
 .navbar {
   position: fixed;
   top: 0;
   width: 100%;
-  background: rgba(0,0,0,0.6);
-  backdrop-filter: blur(10px);
+  background: #111;
+  color: gold;
   padding: 12px 20px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   z-index: 1000;
+  border-bottom: 3px solid gold;
 }
 
-.navbar a {
-  color: white;
+.navbar .links a {
+  color: gold;
   margin-left: 20px;
   text-decoration: none;
-}
-
-/* LAYOUT */
-.dashboard-layout {
-  display: flex;
-  margin-top: 60px;
-}
-
-/* SIDEBAR */
-.sidebar {
-  width: 220px;
-  height: calc(100vh - 60px);
-  padding: 20px;
-  position: fixed;
-
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(20px);
-}
-
-.sidebar li {
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.sidebar li:hover {
-  background: rgba(0,153,255,0.3);
-}
-
-/* MAIN */
-.main {
-  margin-left: 240px;
-  padding: 20px;
-  width: 100%;
-}
-
-/* CARDS */
-.card {
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 20px;
+  font-weight: bold;
+  position: relative;
   transition: 0.3s;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-}
-
-/* GRID */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
-  gap: 20px;
-}
-
-/* INPUT */
-input {
-  padding: 8px;
-  border-radius: 8px;
-  border: none;
-}
-
-/* BUTTON */
-button {
-  background: linear-gradient(135deg,#00c6ff,#0072ff);
-  border: none;
-  padding: 10px;
-  border-radius: 10px;
-  color: white;
-  cursor: pointer;
-}
-
-/* TABLE */
-table {
+.navbar .links a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
   width: 100%;
-  margin-top: 10px;
+  height: 3px;
+  background: gold;
+  box-shadow: 0 0 8px gold;
+  border-radius: 2px;
 }
 
-td,th {
-  padding: 8px;
+.navbar .links a:hover {
+  color: #ffd700;
+  text-shadow: 0 0 6px #ffd700;
 }
 
-/* LOGIN */
+.container {
+  margin-top: 80px;
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 25px;
+}
+
+.card {
+  background: linear-gradient(145deg, #1b1b1b, #111);
+  padding: 25px;
+  border-radius: 12px;
+  border: 2px solid gold;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+  transition: transform 0.3s, box-shadow 0.3s;
+  width: 320px;
+}
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px #ffd700;
+}
+
+.card h3 {
+  margin-top: 0;
+  color: gold;
+  text-shadow: 0 0 4px #ffd700;
+}
+
+#charts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 25px;
+  margin-top: 20px;
+}
+
+canvas {
+  background: #111;
+  border: 1px solid gold;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #111;
+  color: gold;
+  border: 1px solid gold;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: bold;
+}
+button:hover {
+  background: #222;
+  box-shadow: 0 0 10px #ffd700;
+}
+
 #loginForm {
-  max-width: 400px;
+  max-width: 420px;
   margin: 120px auto;
-  padding: 30px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 20px;
+  background: #111;
+  padding: 25px;
+  border: 2px solid gold;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* SEARCH */
-.search {
-  margin-bottom: 10px;
+#loginForm input {
+  padding: 7px;
+  border-radius: 6px;
+  background: #222;
+  color: gold;
+  border: 1px solid gold;
+  font-weight: bold;
+}
+
+#lootTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: linear-gradient(120deg, #1c1c1c, #111);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#lootTable th, #lootTable td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid gold;
+}
+
+#lootTable th {
+  background: #222;
+}
+
+tr:nth-child(even) { background: #1c1c1c; }
+tr:nth-child(odd) { background: #111; }
+
+.popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #222;
+  color: gold;
+  border: 2px solid gold;
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px gold;
+  display: none;
+  z-index: 2000;
+  animation: fadeInOut 3s forwards;
+}
+@keyframes fadeInOut {
+  0% {opacity: 0; transform: translateY(-10px);}
+  10% {opacity: 1; transform: translateY(0);}
+  90% {opacity: 1; transform: translateY(0);}
+  100% {opacity: 0; transform: translateY(-10px);}
 }
 </style>
 </head>
-
 <body>
 
-<!-- NAVBAR -->
 <div class="navbar">
-  <div>MADNESS ADMIN</div>
-  <div>
+  <div class="logo">MADNESS</div>
+  <div class="links">
     <a href="index.html">Informações</a>
     <a href="progresso.html">Progresso</a>
     <a href="loot.html">Loot</a>
@@ -145,65 +188,56 @@ td,th {
   </div>
 </div>
 
-<!-- LOGIN -->
 <div id="loginForm">
   <h3>Login Admin</h3>
-  <input type="email" id="email" placeholder="Email"><br><br>
-  <input type="password" id="password" placeholder="Senha"><br><br>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Senha">
   <button id="loginBtn">Login</button>
 </div>
 
-<!-- DASHBOARD -->
 <div id="adminContent" style="display:none;">
-<div class="dashboard-layout">
 
-<!-- SIDEBAR -->
-<ul class="sidebar">
-  <li>Dashboard</li>
-  <li>Analytics</li>
-  <li>Loot Manager</li>
-</ul>
-
-<!-- MAIN -->
-<div class="main">
-
-<!-- STATS -->
-<div class="grid">
-  <div class="card"><h3>Posts</h3><p id="totalPosts"></p></div>
-  <div class="card"><h3>Loot</h3><p id="totalLoot"></p></div>
-  <div class="card"><h3>Raids</h3><p id="raidsCompleted"></p></div>
-</div>
-
-<!-- CHART -->
-<div class="card">
-  <canvas id="raidChart"></canvas>
-</div>
-
-<!-- LOOT -->
-<div class="card">
-  <h3>Loot Manager</h3>
-
-  <input class="search" type="text" id="searchLoot" placeholder="Pesquisar...">
-
-  <div>
-    <input id="lootPlayer" placeholder="Player">
-    <input id="lootItem" placeholder="Item">
-    <input id="lootType" placeholder="Tipo">
-    <input type="date" id="lootDate">
-    <button id="addLootBtn">Adicionar</button>
+  <div class="container" id="dashboard">
+    <div class="card">
+      <h3>Total de Posts</h3>
+      <p id="totalPosts">0</p>
+    </div>
+    <div class="card">
+      <h3>Total de Loot</h3>
+      <p id="totalLoot">0</p>
+    </div>
+    <div class="card">
+      <h3>Raids Completadas</h3>
+      <p id="raidsCompleted">0</p>
+    </div>
   </div>
 
-  <table id="lootTable">
-    <thead>
-      <tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th><th></th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
+  <div class="container" id="charts">
+    <canvas id="raidChart" width="400" height="200"></canvas>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h3>Gerenciar Loot</h3>
+      <div style="display:flex; gap:5px; flex-wrap:wrap;">
+        <input type="text" id="lootPlayer" placeholder="Player">
+        <input type="text" id="lootItem" placeholder="Item">
+        <input type="text" id="lootType" placeholder="Tipo">
+        <input type="date" id="lootDate">
+        <button id="addLootBtn">Adicionar Loot</button>
+      </div>
+      <table id="lootTable">
+        <thead>
+          <tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th><th>Ações</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
 
 </div>
-</div>
-</div>
+
+<div class="popup" id="popupMsg"></div>
 
 <script type="module">
 import { firebaseConfig } from "./config.js";
@@ -217,110 +251,155 @@ const auth = getAuth(app);
 
 const loginForm = document.getElementById("loginForm");
 const adminContent = document.getElementById("adminContent");
+const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+const lootTableBody = document.querySelector("#lootTable tbody");
+const addLootBtn = document.getElementById("addLootBtn");
+const popup = document.getElementById("popupMsg");
 
-/* LOGIN */
+function showPopup(msg){
+  popup.innerText = msg;
+  popup.style.display = "block";
+  setTimeout(()=>{popup.style.display="none";},3000);
+}
+
+// Login
 loginBtn.onclick = () => {
-  signInWithEmailAndPassword(auth,email.value,password.value)
-  .then(()=>{
-    loginForm.style.display="none";
-    adminContent.style.display="block";
-    logoutBtn.style.display="inline";
-    loadAll();
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
+
+  signInWithEmailAndPassword(auth, email, pass)
+    .then((userCredential) => {
+      localStorage.setItem("admin","true");
+      loginForm.style.display="none";
+      adminContent.style.display="block";
+      logoutBtn.style.display="inline-block";
+      loadDashboard();
+      loadLoot();
+      showPopup("Login bem-sucedido!");
+    })
+    .catch((error) => {
+      showPopup("Email ou senha incorretos!");
+      console.log(error);
+    });
+};
+
+// Logout
+logoutBtn.onclick = () => {
+  signOut(auth).then(() => {
+    localStorage.removeItem("admin");
+    window.location.reload();
   });
 };
 
-logoutBtn.onclick = ()=> signOut(auth).then(()=>location.reload());
-
-onAuthStateChanged(auth,user=>{
-  if(user){
+// Mantém conteúdo visível se já logado
+onAuthStateChanged(auth, (user) => {
+  if (user) {
     loginForm.style.display="none";
     adminContent.style.display="block";
-    logoutBtn.style.display="inline";
-    loadAll();
+    logoutBtn.style.display="inline-block";
+    loadDashboard();
+    loadLoot();
+  } else {
+    loginForm.style.display="block";
+    adminContent.style.display="none";
+    logoutBtn.style.display="none";
   }
 });
 
-/* LOAD ALL */
-async function loadAll(){
-  loadDashboard();
-  loadLoot();
-}
-
-/* DASHBOARD */
+// Dashboard
 async function loadDashboard(){
-  const posts = await getDocs(collection(db,"posts"));
-  const loot = await getDocs(collection(db,"loot"));
+  const postsSnap = await getDocs(collection(db,"posts"));
+  const lootSnap = await getDocs(collection(db,"loot"));
+  document.getElementById("totalPosts").innerText = postsSnap.size;
+  document.getElementById("totalLoot").innerText = lootSnap.size;
 
-  totalPosts.innerText = posts.size;
-  totalLoot.innerText = loot.size;
-  raidsCompleted.innerText = Math.floor(Math.random()*5);
+  const raids = ["dreamrift","voidspire","quelthanas"];
+  let completed=0;
+  for(const raid of raids){
+    const bossesSnap = await getDocs(collection(db,"progress"));
+    let killed=0, total=0;
+    bossesSnap.forEach(doc=>{
+      if(doc.id.startsWith(raid)){
+        total++;
+        if(doc.data().dead) killed++;
+      }
+    });
+    if(total>0 && killed===total) completed++;
+  }
+  document.getElementById("raidsCompleted").innerText = completed;
 
-  new Chart(raidChart,{
-    type:'bar',
+  const ctx = document.getElementById('raidChart').getContext('2d');
+  const labels = [];
+  const progresses = [];
+  for(const raid of raids){
+    const bossesSnap = await getDocs(collection(db,"progress"));
+    let killed=0, total=0;
+    bossesSnap.forEach(doc=>{
+      if(doc.id.startsWith(raid)){
+        total++;
+        if(doc.data().dead) killed++;
+      }
+    });
+    labels.push(raid);
+    progresses.push(total>0?Math.round((killed/total)*100):0);
+  }
+
+  new Chart(ctx,{
+    type:'line',
     data:{
-      labels:["Dreamrift","Voidspire","Quelthanas"],
+      labels:labels,
       datasets:[{
-        label:"Progress",
-        data:[40,70,90]
+        label:'Progresso (%)',
+        data:progresses,
+        borderColor:'gold',
+        backgroundColor:'rgba(255,215,0,0.2)',
+        tension:0.3,
+        fill:true
       }]
-    }
+    },
+    options:{responsive:true, scales:{y:{beginAtZero:true, max:100}}}
   });
 }
 
-/* LOOT */
-let allLoot=[];
-
+// Loot CRUD
 async function loadLoot(){
+  lootTableBody.innerHTML="";
   const snap = await getDocs(collection(db,"loot"));
-  allLoot=[];
-  lootTable.innerHTML="";
-
   snap.forEach(docItem=>{
-    const data = docItem.data();
-    allLoot.push({...data,id:docItem.id});
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${docItem.data().player}</td>
+                     <td>${docItem.data().item}</td>
+                     <td>${docItem.data().type}</td>
+                     <td>${docItem.data().date}</td>
+                     <td><button data-id="${docItem.id}" class="deleteBtn">Excluir</button></td>`;
+    lootTableBody.appendChild(row);
   });
 
-  renderLoot(allLoot);
-}
-
-function renderLoot(data){
-  lootTable.querySelector("tbody").innerHTML="";
-  data.forEach(item=>{
-    const row = `
-      <tr>
-        <td>${item.player}</td>
-        <td>${item.item}</td>
-        <td>${item.type}</td>
-        <td>${item.date}</td>
-        <td><button onclick="deleteLoot('${item.id}')">X</button></td>
-      </tr>`;
-    lootTable.querySelector("tbody").innerHTML+=row;
+  document.querySelectorAll(".deleteBtn").forEach(btn=>{
+    btn.onclick = async ()=>{
+      const id = btn.dataset.id;
+      await deleteDoc(doc(db,"loot",id));
+      showPopup("Loot excluído!");
+      loadLoot();
+    };
   });
 }
 
-window.deleteLoot = async (id)=>{
-  await deleteDoc(doc(db,"loot",id));
-  loadLoot();
-}
-
-/* SEARCH */
-searchLoot.oninput = ()=>{
-  const val = searchLoot.value.toLowerCase();
-  const filtered = allLoot.filter(l=>l.player.toLowerCase().includes(val));
-  renderLoot(filtered);
-}
-
-/* ADD */
 addLootBtn.onclick = async ()=>{
-  await addDoc(collection(db,"loot"),{
-    player:lootPlayer.value,
-    item:lootItem.value,
-    type:lootType.value,
-    date:lootDate.value
-  });
+  const player = document.getElementById("lootPlayer").value;
+  const item = document.getElementById("lootItem").value;
+  const type = document.getElementById("lootType").value;
+  const date = document.getElementById("lootDate").value;
+  if(!player||!item||!type||!date){ showPopup("Preencha todos os campos!"); return; }
+  await addDoc(collection(db,"loot"),{player,item,type,date});
+  showPopup("Loot adicionado!");
+  document.getElementById("lootPlayer").value="";
+  document.getElementById("lootItem").value="";
+  document.getElementById("lootType").value="";
+  document.getElementById("lootDate").value="";
   loadLoot();
-}
+};
 </script>
 
 </body>
