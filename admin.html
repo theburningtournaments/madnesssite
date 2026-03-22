@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Admin - Madness</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
 body {
   background: linear-gradient(to bottom, #0a0a0a, #111);
@@ -36,6 +35,8 @@ body {
   background: #0d0d0d;
   border-right: 2px solid gold;
   padding-top: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 .menu-item {
@@ -50,6 +51,15 @@ body {
 .menu-item.active {
   background: #1a1a1a;
   border-left: 3px solid gold;
+}
+
+#sidebarLogout {
+  margin:20px;
+  padding:10px;
+  background:#111;
+  color:gold;
+  border:1px solid gold;
+  cursor:pointer;
 }
 
 /* CONTAINER */
@@ -75,7 +85,15 @@ body {
   font-weight: bold;
 }
 
-/* TABLE */
+input, button {
+  margin: 5px 5px 5px 0;
+  padding: 5px;
+  border-radius: 5px;
+  border:1px solid gold;
+  background:#111;
+  color:gold;
+}
+
 table {
   width: 100%;
   margin-top: 10px;
@@ -100,12 +118,10 @@ th, td {
 }
 </style>
 </head>
-
 <body>
 
 <div class="navbar">
   <div>MADNESS ADMIN</div>
-  <button id="logoutBtn" style="display:none;">Logout</button>
 </div>
 
 <div class="sidebar">
@@ -113,6 +129,7 @@ th, td {
   <div class="menu-item" data-section="loot">🎁 Loot</div>
   <div class="menu-item" data-section="players">👥 Players</div>
   <div class="menu-item" data-section="bank">🏦 Guild Bank</div>
+  <button id="sidebarLogout">Logout</button>
 </div>
 
 <!-- LOGIN -->
@@ -140,13 +157,11 @@ th, td {
   <div class="container" id="lootSection" style="display:none;">
     <div class="card" style="width:100%;">
       <h3>Loot</h3>
-
       <input id="lootPlayer" placeholder="Player">
       <input id="lootItem" placeholder="Item">
       <input id="lootType" placeholder="Tipo">
       <input type="date" id="lootDate">
       <button id="addLootBtn">Adicionar</button>
-
       <table id="lootTable">
         <thead>
           <tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th><th></th></tr>
@@ -160,15 +175,14 @@ th, td {
   <div class="container" id="playersSection" style="display:none;">
     <div class="card" style="width:100%;">
       <h3>Players Guild</h3>
-
       <input id="playerName" placeholder="Nome">
       <input id="playerClass" placeholder="Classe">
       <input id="playerIlvl" placeholder="iLvl">
+      <input id="playerEnchats" placeholder="Enchats">
       <button id="addPlayerBtn">Adicionar</button>
-
       <table id="playersTable">
         <thead>
-          <tr><th>Nome</th><th>Classe</th><th>iLvl</th><th></th></tr>
+          <tr><th>Nome</th><th>Classe</th><th>iLvl</th><th>Enchats</th><th></th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -179,14 +193,15 @@ th, td {
   <div class="container" id="bankSection" style="display:none;">
     <div class="card" style="width:100%;">
       <h3>Guild Bank / BOE</h3>
-
+      <input id="bankPlayer" placeholder="Player">
+      <input id="bankGoldPlayer" placeholder="Gold Player">
+      <input id="bankGoldGuild" placeholder="Gold Guild">
       <input id="bankItem" placeholder="Item">
-      <input id="bankValue" placeholder="Gold">
+      <input type="date" id="bankDate">
       <button id="addBankBtn">Adicionar</button>
-
       <table id="bankTable">
         <thead>
-          <tr><th>Item</th><th>Gold</th><th></th></tr>
+          <tr><th>Player</th><th>Gold Player</th><th>Gold Guild</th><th>Item</th><th>Data</th><th></th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -199,7 +214,7 @@ th, td {
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -207,134 +222,128 @@ const auth = getAuth(app);
 
 /* MENU */
 const menuItems = document.querySelectorAll(".menu-item");
+const dashboard = document.getElementById("dashboard");
+const charts = document.getElementById("charts");
+const lootSection = document.getElementById("lootSection");
+const playersSection = document.getElementById("playersSection");
+const bankSection = document.getElementById("bankSection");
 
 menuItems.forEach(item=>{
   item.onclick=()=>{
     menuItems.forEach(i=>i.classList.remove("active"));
     item.classList.add("active");
-
     dashboard.style.display="none";
     charts.style.display="none";
     lootSection.style.display="none";
     playersSection.style.display="none";
     bankSection.style.display="none";
-
-    if(item.dataset.section==="dashboard"){
-      dashboard.style.display="flex";
-      charts.style.display="flex";
-    }
+    if(item.dataset.section==="dashboard"){dashboard.style.display="flex"; charts.style.display="flex";}
     if(item.dataset.section==="loot") lootSection.style.display="flex";
     if(item.dataset.section==="players") playersSection.style.display="flex";
     if(item.dataset.section==="bank") bankSection.style.display="flex";
   };
 });
 
+/* LOGOUT */
+document.getElementById("sidebarLogout").onclick = async () => {
+  await signOut(auth);
+  window.location.href = "index.html";
+};
+
 /* LOGIN */
+const loginBtn = document.getElementById("loginBtn");
 loginBtn.onclick=()=>{
   signInWithEmailAndPassword(auth,email.value,password.value)
   .then(()=>{
     loginForm.style.display="none";
     adminContent.style.display="block";
+    loadAllData();
   });
 };
 
-/* LOAD DATA */
+/* LOAD ALL DATA */
+async function loadAllData(){
+  await loadLoot();
+  await loadPlayers();
+  await loadBank();
+  await loadRaidCharts();
+}
+
+/* LOOT */
 async function loadLoot(){
-  const tbody=document.querySelector("#lootTable tbody");
-  tbody.innerHTML="";
+  const tbody=document.querySelector("#lootTable tbody"); tbody.innerHTML="";
   const snap=await getDocs(collection(db,"loot"));
   snap.forEach(d=>{
     const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${d.data().player}</td>
-      <td>${d.data().item}</td>
-      <td>${d.data().type}</td>
-      <td>${d.data().date}</td>
-      <td><button>X</button></td>`;
-    tr.querySelector("button").onclick=async()=>{
-      await deleteDoc(doc(db,"loot",d.id));
-      loadLoot();
-    };
+    tr.innerHTML=`<td>${d.data().player}</td><td>${d.data().item}</td><td>${d.data().type}</td><td>${d.data().date}</td><td><button>X</button></td>`;
+    tr.querySelector("button").onclick=async()=>{await deleteDoc(doc(db,"loot",d.id)); loadLoot();};
     tbody.appendChild(tr);
   });
 }
-
-async function loadPlayers(){
-  const tbody=document.querySelector("#playersTable tbody");
-  tbody.innerHTML="";
-  const snap=await getDocs(collection(db,"players"));
-  snap.forEach(d=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${d.data().name}</td>
-      <td>${d.data().class}</td>
-      <td>${d.data().ilvl}</td>
-      <td><button>X</button></td>`;
-    tr.querySelector("button").onclick=async()=>{
-      await deleteDoc(doc(db,"players",d.id));
-      loadPlayers();
-    };
-    tbody.appendChild(tr);
-  });
-}
-
-async function loadBank(){
-  const tbody=document.querySelector("#bankTable tbody");
-  tbody.innerHTML="";
-  const snap=await getDocs(collection(db,"bank"));
-  snap.forEach(d=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td>${d.data().item}</td>
-      <td>${d.data().value}</td>
-      <td><button>X</button></td>`;
-    tr.querySelector("button").onclick=async()=>{
-      await deleteDoc(doc(db,"bank",d.id));
-      loadBank();
-    };
-    tbody.appendChild(tr);
-  });
-}
-
-/* ADD */
 addLootBtn.onclick=async()=>{
-  await addDoc(collection(db,"loot"),{
-    player:lootPlayer.value,
-    item:lootItem.value,
-    type:lootType.value,
-    date:lootDate.value
-  });
+  await addDoc(collection(db,"loot"),{player:lootPlayer.value,item:lootItem.value,type:lootType.value,date:lootDate.value});
   loadLoot();
 };
 
-addPlayerBtn.onclick=async()=>{
-  await addDoc(collection(db,"players"),{
-    name:playerName.value,
-    class:playerClass.value,
-    ilvl:playerIlvl.value
+/* PLAYERS */
+async function loadPlayers(){
+  const tbody=document.querySelector("#playersTable tbody"); tbody.innerHTML="";
+  const snap=await getDocs(collection(db,"players"));
+  snap.forEach(d=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${d.data().name}</td><td>${d.data().class}</td><td>${d.data().ilvl}</td><td>${d.data().enchats}</td><td><button>X</button></td>`;
+    tr.querySelector("button").onclick=async()=>{await deleteDoc(doc(db,"players",d.id)); loadPlayers();};
+    tbody.appendChild(tr);
   });
+}
+addPlayerBtn.onclick=async()=>{
+  await addDoc(collection(db,"players"),{name:playerName.value,class:playerClass.value,ilvl:playerIlvl.value,enchats:playerEnchats.value});
   loadPlayers();
 };
 
-addBankBtn.onclick=async()=>{
-  await addDoc(collection(db,"bank"),{
-    item:bankItem.value,
-    value:bankValue.value
+/* BANK */
+async function loadBank(){
+  const tbody=document.querySelector("#bankTable tbody"); tbody.innerHTML="";
+  const snap=await getDocs(collection(db,"bank"));
+  snap.forEach(d=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${d.data().player}</td><td>${d.data().goldPlayer}</td><td>${d.data().goldGuild}</td><td>${d.data().item}</td><td>${d.data().date}</td><td><button>X</button></td>`;
+    tr.querySelector("button").onclick=async()=>{await deleteDoc(doc(db,"bank",d.id)); loadBank();};
+    tbody.appendChild(tr);
   });
+}
+addBankBtn.onclick=async()=>{
+  await addDoc(collection(db,"bank"),{player:bankPlayer.value,goldPlayer:bankGoldPlayer.value,goldGuild:bankGoldGuild.value,item:bankItem.value,date:bankDate.value});
   loadBank();
 };
 
-/* AUTH */
+/* RAIDS CHART */
+async function loadRaidCharts() {
+  const raids = ["dreamrift","voidspire","quelthanas"];
+  const ctx = document.getElementById('raidChart').getContext('2d');
+  const labels = []; const progresses = [];
+  const snap=await getDocs(collection(db,"progress"));
+  raids.forEach(raid=>{
+    let total=0,killed=0;
+    snap.forEach(doc=>{if(doc.id.startsWith(raid)){total++;if(doc.data().dead) killed++;}});
+    labels.push(raid);
+    progresses.push(total?Math.round((killed/total)*100):0);
+  });
+  new Chart(ctx,{
+    type:'line',
+    data:{labels, datasets:[{label:'Progresso (%)',data:progresses,borderColor:'gold',backgroundColor:'rgba(255,215,0,0.2)',tension:0.3,fill:true}]},
+    options:{responsive:true, scales:{y:{beginAtZero:true,max:100}}}
+  });
+}
+
+/* ON AUTH CHANGE */
 onAuthStateChanged(auth,user=>{
   if(user){
     loginForm.style.display="none";
     adminContent.style.display="block";
-    loadLoot();
-    loadPlayers();
-    loadBank();
+    loadAllData();
   }
 });
 </script>
-
 </body>
 </html>
