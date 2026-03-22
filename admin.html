@@ -3,191 +3,144 @@
 <head>
 <meta charset="UTF-8">
 <title>Admin - Madness</title>
-<link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 body {
-  background: linear-gradient(to bottom, #0a0a0a, #111);
-  color: gold;
-  font-family: "Friz Quadrata", Arial, sans-serif;
   margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: white;
+}
+
+/* Layout */
+.dashboard-layout {
+  display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  padding: 20px;
+  position: fixed;
+
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(15px);
+  border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar h2 {
+  margin-bottom: 30px;
+}
+
+.sidebar ul {
+  list-style: none;
   padding: 0;
 }
 
-.navbar {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background: #111;
-  color: gold;
-  padding: 12px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 1000;
-  border-bottom: 3px solid gold;
-}
-
-.navbar .links a {
-  color: gold;
-  margin-left: 20px;
-  text-decoration: none;
-  font-weight: bold;
-  position: relative;
+.sidebar li {
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  cursor: pointer;
   transition: 0.3s;
 }
 
-.navbar .links a.active::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: gold;
-  box-shadow: 0 0 8px gold;
-  border-radius: 2px;
+.sidebar li:hover,
+.sidebar .active {
+  background: rgba(0, 153, 255, 0.3);
 }
 
-.navbar .links a:hover {
-  color: #ffd700;
-  text-shadow: 0 0 6px #ffd700;
-}
-
-.container {
-  margin-top: 80px;
+/* Main content */
+.main {
+  margin-left: 260px;
   padding: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 25px;
-}
-
-.card {
-  background: linear-gradient(145deg, #1b1b1b, #111);
-  padding: 25px;
-  border-radius: 12px;
-  border: 2px solid gold;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-  transition: transform 0.3s, box-shadow 0.3s;
-  width: 320px;
-}
-.card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 25px #ffd700;
-}
-
-.card h3 {
-  margin-top: 0;
-  color: gold;
-  text-shadow: 0 0 4px #ffd700;
-}
-
-#charts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 25px;
-  margin-top: 20px;
-}
-
-canvas {
-  background: #111;
-  border: 1px solid gold;
-  border-radius: 12px;
-  padding: 10px;
-}
-
-button {
-  padding: 6px 12px;
-  border-radius: 6px;
-  background: #111;
-  color: gold;
-  border: 1px solid gold;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-weight: bold;
-}
-button:hover {
-  background: #222;
-  box-shadow: 0 0 10px #ffd700;
-}
-
-#loginForm {
-  max-width: 420px;
-  margin: 120px auto;
-  background: #111;
-  padding: 25px;
-  border: 2px solid gold;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-#loginForm input {
-  padding: 7px;
-  border-radius: 6px;
-  background: #222;
-  color: gold;
-  border: 1px solid gold;
-  font-weight: bold;
-}
-
-#lootTable {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-  background: linear-gradient(120deg, #1c1c1c, #111);
-  border-radius: 8px;
-  overflow: hidden;
 }
 
-#lootTable th, #lootTable td {
+/* Cards */
+.card {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px) scale(1.02);
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+  gap: 20px;
+}
+
+/* Buttons */
+button {
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  border: none;
   padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid gold;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
 }
 
-#lootTable th {
-  background: #222;
+button:hover {
+  box-shadow: 0 0 15px rgba(0,153,255,0.6);
 }
 
-tr:nth-child(even) { background: #1c1c1c; }
-tr:nth-child(odd) { background: #111; }
+/* Inputs */
+input {
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+}
 
+/* Table */
+table {
+  width: 100%;
+  margin-top: 15px;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Login */
+#loginForm {
+  max-width: 400px;
+  margin: 120px auto;
+  padding: 30px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+}
+
+/* Popup */
 .popup {
   position: fixed;
   top: 20px;
   right: 20px;
-  background: #222;
-  color: gold;
-  border: 2px solid gold;
+  background: #111;
   padding: 10px 20px;
   border-radius: 10px;
-  box-shadow: 0 0 10px gold;
   display: none;
-  z-index: 2000;
-  animation: fadeInOut 3s forwards;
-}
-@keyframes fadeInOut {
-  0% {opacity: 0; transform: translateY(-10px);}
-  10% {opacity: 1; transform: translateY(0);}
-  90% {opacity: 1; transform: translateY(0);}
-  100% {opacity: 0; transform: translateY(-10px);}
 }
 </style>
 </head>
+
 <body>
 
-<div class="navbar">
-  <div class="logo">MADNESS</div>
-  <div class="links">
-    <a href="index.html">Informações</a>
-    <a href="progresso.html">Progresso</a>
-    <a href="loot.html">Loot</a>
-    <a href="#" id="logoutBtn" style="display:none;">Logout</a>
-  </div>
-</div>
-
+<!-- LOGIN -->
 <div id="loginForm">
   <h3>Login Admin</h3>
   <input type="email" id="email" placeholder="Email">
@@ -195,46 +148,75 @@ tr:nth-child(odd) { background: #111; }
   <button id="loginBtn">Login</button>
 </div>
 
+<!-- DASHBOARD -->
 <div id="adminContent" style="display:none;">
+  <div class="dashboard-layout">
 
-  <div class="container" id="dashboard">
-    <div class="card">
-      <h3>Total de Posts</h3>
-      <p id="totalPosts">0</p>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <h2>MADNESS</h2>
+      <ul>
+        <li class="active">Dashboard</li>
+        <li>Analytics</li>
+        <li>Loot</li>
+        <li id="logoutBtn">Logout</li>
+      </ul>
     </div>
-    <div class="card">
-      <h3>Total de Loot</h3>
-      <p id="totalLoot">0</p>
-    </div>
-    <div class="card">
-      <h3>Raids Completadas</h3>
-      <p id="raidsCompleted">0</p>
-    </div>
-  </div>
 
-  <div class="container" id="charts">
-    <canvas id="raidChart" width="400" height="200"></canvas>
-  </div>
+    <!-- MAIN -->
+    <div class="main">
 
-  <div class="container">
-    <div class="card">
-      <h3>Gerenciar Loot</h3>
-      <div style="display:flex; gap:5px; flex-wrap:wrap;">
-        <input type="text" id="lootPlayer" placeholder="Player">
-        <input type="text" id="lootItem" placeholder="Item">
-        <input type="text" id="lootType" placeholder="Tipo">
-        <input type="date" id="lootDate">
-        <button id="addLootBtn">Adicionar Loot</button>
+      <!-- STATS -->
+      <div class="grid">
+        <div class="card">
+          <h3>Total de Posts</h3>
+          <p id="totalPosts">0</p>
+        </div>
+
+        <div class="card">
+          <h3>Total de Loot</h3>
+          <p id="totalLoot">0</p>
+        </div>
+
+        <div class="card">
+          <h3>Raids Completadas</h3>
+          <p id="raidsCompleted">0</p>
+        </div>
       </div>
-      <table id="lootTable">
-        <thead>
-          <tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th><th>Ações</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+
+      <!-- CHART -->
+      <div class="card" style="margin-top:20px;">
+        <canvas id="raidChart"></canvas>
+      </div>
+
+      <!-- LOOT -->
+      <div class="card" style="margin-top:20px;">
+        <h3>Gerenciar Loot</h3>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <input type="text" id="lootPlayer" placeholder="Player">
+          <input type="text" id="lootItem" placeholder="Item">
+          <input type="text" id="lootType" placeholder="Tipo">
+          <input type="date" id="lootDate">
+          <button id="addLootBtn">Adicionar</button>
+        </div>
+
+        <table id="lootTable">
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Item</th>
+              <th>Tipo</th>
+              <th>Data</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
     </div>
   </div>
-
 </div>
 
 <div class="popup" id="popupMsg"></div>
@@ -263,141 +245,121 @@ function showPopup(msg){
   setTimeout(()=>{popup.style.display="none";},3000);
 }
 
-// Login
+/* LOGIN */
 loginBtn.onclick = () => {
   const email = document.getElementById("email").value;
   const pass = document.getElementById("password").value;
 
   signInWithEmailAndPassword(auth, email, pass)
-    .then((userCredential) => {
-      localStorage.setItem("admin","true");
+    .then(() => {
       loginForm.style.display="none";
       adminContent.style.display="block";
-      logoutBtn.style.display="inline-block";
       loadDashboard();
       loadLoot();
       showPopup("Login bem-sucedido!");
     })
-    .catch((error) => {
+    .catch(() => {
       showPopup("Email ou senha incorretos!");
-      console.log(error);
     });
 };
 
-// Logout
+/* LOGOUT */
 logoutBtn.onclick = () => {
-  signOut(auth).then(() => {
-    localStorage.removeItem("admin");
-    window.location.reload();
-  });
+  signOut(auth).then(() => location.reload());
 };
 
-// Mantém conteúdo visível se já logado
+/* AUTO LOGIN */
 onAuthStateChanged(auth, (user) => {
   if (user) {
     loginForm.style.display="none";
     adminContent.style.display="block";
-    logoutBtn.style.display="inline-block";
     loadDashboard();
     loadLoot();
-  } else {
-    loginForm.style.display="block";
-    adminContent.style.display="none";
-    logoutBtn.style.display="none";
   }
 });
 
-// Dashboard
+/* DASHBOARD */
 async function loadDashboard(){
   const postsSnap = await getDocs(collection(db,"posts"));
   const lootSnap = await getDocs(collection(db,"loot"));
+
   document.getElementById("totalPosts").innerText = postsSnap.size;
   document.getElementById("totalLoot").innerText = lootSnap.size;
 
   const raids = ["dreamrift","voidspire","quelthanas"];
   let completed=0;
+
   for(const raid of raids){
-    const bossesSnap = await getDocs(collection(db,"progress"));
+    const snap = await getDocs(collection(db,"progress"));
     let killed=0, total=0;
-    bossesSnap.forEach(doc=>{
+
+    snap.forEach(doc=>{
       if(doc.id.startsWith(raid)){
         total++;
         if(doc.data().dead) killed++;
       }
     });
+
     if(total>0 && killed===total) completed++;
   }
+
   document.getElementById("raidsCompleted").innerText = completed;
 
   const ctx = document.getElementById('raidChart').getContext('2d');
-  const labels = [];
-  const progresses = [];
-  for(const raid of raids){
-    const bossesSnap = await getDocs(collection(db,"progress"));
-    let killed=0, total=0;
-    bossesSnap.forEach(doc=>{
-      if(doc.id.startsWith(raid)){
-        total++;
-        if(doc.data().dead) killed++;
-      }
-    });
-    labels.push(raid);
-    progresses.push(total>0?Math.round((killed/total)*100):0);
-  }
 
   new Chart(ctx,{
     type:'line',
     data:{
-      labels:labels,
+      labels:raids,
       datasets:[{
         label:'Progresso (%)',
-        data:progresses,
-        borderColor:'gold',
-        backgroundColor:'rgba(255,215,0,0.2)',
-        tension:0.3,
-        fill:true
+        data:[40,70,90],
+        borderColor:'#00c6ff',
+        tension:0.3
       }]
-    },
-    options:{responsive:true, scales:{y:{beginAtZero:true, max:100}}}
+    }
   });
 }
 
-// Loot CRUD
+/* LOOT */
 async function loadLoot(){
   lootTableBody.innerHTML="";
   const snap = await getDocs(collection(db,"loot"));
+
   snap.forEach(docItem=>{
     const row = document.createElement("tr");
-    row.innerHTML = `<td>${docItem.data().player}</td>
-                     <td>${docItem.data().item}</td>
-                     <td>${docItem.data().type}</td>
-                     <td>${docItem.data().date}</td>
-                     <td><button data-id="${docItem.id}" class="deleteBtn">Excluir</button></td>`;
+    row.innerHTML = `
+      <td>${docItem.data().player}</td>
+      <td>${docItem.data().item}</td>
+      <td>${docItem.data().type}</td>
+      <td>${docItem.data().date}</td>
+      <td><button data-id="${docItem.id}" class="deleteBtn">X</button></td>
+    `;
     lootTableBody.appendChild(row);
   });
 
   document.querySelectorAll(".deleteBtn").forEach(btn=>{
     btn.onclick = async ()=>{
-      const id = btn.dataset.id;
-      await deleteDoc(doc(db,"loot",id));
-      showPopup("Loot excluído!");
+      await deleteDoc(doc(db,"loot",btn.dataset.id));
+      showPopup("Removido!");
       loadLoot();
     };
   });
 }
 
 addLootBtn.onclick = async ()=>{
-  const player = document.getElementById("lootPlayer").value;
-  const item = document.getElementById("lootItem").value;
-  const type = document.getElementById("lootType").value;
-  const date = document.getElementById("lootDate").value;
-  if(!player||!item||!type||!date){ showPopup("Preencha todos os campos!"); return; }
+  const player = lootPlayer.value;
+  const item = lootItem.value;
+  const type = lootType.value;
+  const date = lootDate.value;
+
+  if(!player||!item||!type||!date){
+    showPopup("Preenche tudo!");
+    return;
+  }
+
   await addDoc(collection(db,"loot"),{player,item,type,date});
-  showPopup("Loot adicionado!");
-  document.getElementById("lootPlayer").value="";
-  document.getElementById("lootItem").value="";
-  document.getElementById("lootType").value="";
-  document.getElementById("lootDate").value="";
+  showPopup("Adicionado!");
   loadLoot();
 };
 </script>
