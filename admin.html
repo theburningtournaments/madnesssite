@@ -5,7 +5,7 @@
 <title>Admin - Madness</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-body { background: linear-gradient(to bottom, #0a0a0a, #111); color: gold; font-family: Arial; margin: 0; }
+body { background: linear-gradient(to bottom, #0a0a0a, #111); color: gold; font-family: Arial; margin:0; }
 .navbar { position: fixed; top:0; width:100%; background:#111; padding:12px 20px; display:flex; justify-content:space-between; border-bottom:2px solid gold; z-index:1000; }
 .sidebar { position:fixed; top:60px; left:0; width:220px; height:100%; background:#0d0d0d; border-right:2px solid gold; padding-top:20px; display:flex; flex-direction:column; }
 .menu-item { display:block; padding:12px 20px; color:gold; text-decoration:none; cursor:pointer; }
@@ -14,7 +14,8 @@ body { background: linear-gradient(to bottom, #0a0a0a, #111); color: gold; font-
 .container { margin-left:240px; margin-top:80px; padding:20px; display:flex; flex-wrap:wrap; gap:20px; }
 .card { background:#111; padding:20px; border:2px solid gold; border-radius:10px; width:300px; }
 .card p { font-size:26px; font-weight:bold; }
-input, button { margin:5px 5px 5px 0; padding:5px; border-radius:5px; border:1px solid gold; background:#111; color:gold; }
+input, textarea, button { margin:5px 5px 5px 0; padding:5px; border-radius:5px; border:1px solid gold; background:#111; color:gold; }
+textarea { width: 100%; height: 60px; }
 table { width:100%; margin-top:10px; border-collapse:collapse; }
 th, td { padding:8px; border-bottom:1px solid gold; }
 #loginForm { max-width:400px; margin:120px auto; background:#111; padding:20px; border:2px solid gold; display:flex; flex-direction:column; gap:10px; }
@@ -31,22 +32,25 @@ th, td { padding:8px; border-bottom:1px solid gold; }
 </div>
 
 <div id="adminContent" style="display:none;">
+
   <div class="sidebar" id="sidebar">
     <div class="menu-item active" data-section="dashboard">📊 Gráficos</div>
     <div class="menu-item" data-section="loot">🎁 Loot</div>
     <div class="menu-item" data-section="players">👥 Players</div>
     <div class="menu-item" data-section="bank">🏦 Guild Bank</div>
+    <div class="menu-item" data-section="posts">📝 Posts</div>
     <button id="sidebarLogout">Logout</button>
   </div>
 
+  <!-- DASHBOARD -->
   <div class="container" id="dashboard">
     <div class="card"><p id="totalPosts">0</p><span>Posts</span></div>
     <div class="card"><p id="totalLoot">0</p><span>Loot</span></div>
     <div class="card"><p id="raidsCompleted">0</p><span>Raids</span></div>
   </div>
-
   <div class="container" id="charts"><canvas id="raidChart"></canvas></div>
 
+  <!-- LOOT -->
   <div class="container" id="lootSection" style="display:none;">
     <div class="card" style="width:100%;">
       <h3>Loot</h3>
@@ -62,6 +66,7 @@ th, td { padding:8px; border-bottom:1px solid gold; }
     </div>
   </div>
 
+  <!-- PLAYERS -->
   <div class="container" id="playersSection" style="display:none;">
     <div class="card" style="width:100%;">
       <h3>Players Guild</h3>
@@ -77,6 +82,7 @@ th, td { padding:8px; border-bottom:1px solid gold; }
     </div>
   </div>
 
+  <!-- GUILD BANK -->
   <div class="container" id="bankSection" style="display:none;">
     <div class="card" style="width:100%;">
       <h3>Guild Bank / BOE</h3>
@@ -88,6 +94,20 @@ th, td { padding:8px; border-bottom:1px solid gold; }
       <button id="addBankBtn">Adicionar</button>
       <table id="bankTable">
         <thead><tr><th>Player</th><th>Gold Player</th><th>Gold Guild</th><th>Item</th><th>Data</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- POSTS -->
+  <div class="container" id="postsSection" style="display:none;">
+    <div class="card" style="width:100%;">
+      <h3>Posts</h3>
+      <input id="postTitle" placeholder="Título">
+      <textarea id="postContent" placeholder="Conteúdo"></textarea>
+      <button id="addPostBtn">Publicar</button>
+      <table id="postsTable">
+        <thead><tr><th>Título</th><th>Conteúdo</th><th>Ações</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -114,19 +134,19 @@ const charts = document.getElementById("charts");
 const lootSection = document.getElementById("lootSection");
 const playersSection = document.getElementById("playersSection");
 const bankSection = document.getElementById("bankSection");
+const postsSection = document.getElementById("postsSection");
 
-// FUNÇÕES DE LOGIN
+// LOGIN
 document.getElementById("loginBtn").onclick = async () => {
-  const emailVal = document.getElementById("email").value;
-  const passwordVal = document.getElementById("password").value;
-
-  try {
-    await signInWithEmailAndPassword(auth,emailVal,passwordVal);
+  try{
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
+    await signInWithEmailAndPassword(auth,email,pass);
     loginForm.style.display="none";
     adminContent.style.display="block";
-    loadAllData(); // APENAS CARREGA DADOS
+    loadAllData();
     initMenu();
-  } catch (err) { alert("Email ou senha incorretos!"); }
+  } catch(e){ alert("Email ou senha incorretos!"); }
 };
 
 // LOGOUT
@@ -136,33 +156,57 @@ document.getElementById("sidebarLogout").onclick = async () => {
 };
 
 // MENU
-function initMenu() {
+function initMenu(){
   const menuItems = sidebar.querySelectorAll(".menu-item");
-  menuItems.forEach(item=>{
-    item.onclick=()=>{
+  menuItems.forEach(item => {
+    item.onclick = () => {
       menuItems.forEach(i=>i.classList.remove("active"));
       item.classList.add("active");
-      dashboard.style.display="none"; charts.style.display="none";
-      lootSection.style.display="none"; playersSection.style.display="none"; bankSection.style.display="none";
+      dashboard.style.display=charts.style.display=lootSection.style.display=playersSection.style.display=bankSection.style.display=postsSection.style.display="none";
       if(item.dataset.section==="dashboard"){dashboard.style.display="flex"; charts.style.display="flex";}
       if(item.dataset.section==="loot") lootSection.style.display="flex";
       if(item.dataset.section==="players") playersSection.style.display="flex";
       if(item.dataset.section==="bank") bankSection.style.display="flex";
-    }
+      if(item.dataset.section==="posts") postsSection.style.display="flex";
+    };
   });
 }
 
-// CARREGAR TODOS DADOS SEM ADICIONAR NADA AUTOMATICAMENTE
-async function loadAllData(){ await loadLoot(); await loadPlayers(); await loadBank(); await loadRaidCharts(); }
+// UPDATE DASHBOARD
+async function updateDashboard(){
+  const postsSnap = await getDocs(collection(db,"posts"));
+  const lootSnap = await getDocs(collection(db,"loot"));
+  document.getElementById("totalPosts").innerText = postsSnap.size;
+  document.getElementById("totalLoot").innerText = lootSnap.size;
+  const raids = ["dreamrift","voidspire","quelthanas"];
+  let completed=0;
+  const snapProgress = await getDocs(collection(db,"progress"));
+  for(const raid of raids){
+    let total=0,killed=0;
+    snapProgress.forEach(d=>{if(d.id.startsWith(raid)){total++; if(d.data().dead) killed++;}});
+    if(total>0 && killed===total) completed++;
+  }
+  document.getElementById("raidsCompleted").innerText = completed;
+}
 
-// FUNÇÕES CRUD
+// LOAD ALL
+async function loadAllData(){
+  await loadLoot();
+  await loadPlayers();
+  await loadBank();
+  await loadPosts();
+  await loadRaidCharts();
+  await updateDashboard();
+}
+
+// LOOT
 async function loadLoot(){
   const tbody=document.querySelector("#lootTable tbody"); tbody.innerHTML="";
   const snap=await getDocs(collection(db,"loot"));
   snap.forEach(d=>{
     const tr=document.createElement("tr");
     tr.innerHTML=`<td>${d.data().player}</td><td>${d.data().item}</td><td>${d.data().type}</td><td>${d.data().date}</td><td><button>X</button></td>`;
-    tr.querySelector("button").onclick=async()=>{await deleteDoc(doc(db,"loot",d.id)); loadLoot();};
+    tr.querySelector("button").onclick=async()=>{await deleteDoc(doc(db,"loot",d.id)); loadLoot(); updateDashboard();};
     tbody.appendChild(tr);
   });
 }
@@ -174,9 +218,10 @@ document.getElementById("addLootBtn").onclick=async()=>{
   if(!p||!i||!t||!d){alert("Preencha todos os campos!"); return;}
   await addDoc(collection(db,"loot"),{player:p,item:i,type:t,date:d});
   document.getElementById("lootPlayer").value=""; document.getElementById("lootItem").value=""; document.getElementById("lootType").value=""; document.getElementById("lootDate").value="";
-  loadLoot();
+  loadLoot(); updateDashboard();
 };
 
+// PLAYERS
 async function loadPlayers(){
   const tbody=document.querySelector("#playersTable tbody"); tbody.innerHTML="";
   const snap=await getDocs(collection(db,"players"));
@@ -195,6 +240,7 @@ document.getElementById("addPlayerBtn").onclick=async()=>{
   loadPlayers();
 };
 
+// BANK
 async function loadBank(){
   const tbody=document.querySelector("#bankTable tbody"); tbody.innerHTML="";
   const snap=await getDocs(collection(db,"bank"));
@@ -213,6 +259,27 @@ document.getElementById("addBankBtn").onclick=async()=>{
   loadBank();
 };
 
+// POSTS
+async function loadPosts(){
+  const tbody=document.querySelector("#postsTable tbody"); tbody.innerHTML="";
+  const snap=await getDocs(collection(db,"posts"));
+  snap.forEach(d=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${d.data().title}</td><td>${d.data().content}</td><td><button>X</button></td>`;
+    tr.querySelector("button").onclick=async()=>{await deleteDoc(doc(db,"posts",d.id)); loadPosts(); updateDashboard();};
+    tbody.appendChild(tr);
+  });
+}
+document.getElementById("addPostBtn").onclick=async()=>{
+  const t=document.getElementById("postTitle").value;
+  const c=document.getElementById("postContent").value;
+  if(!t||!c){alert("Preencha todos os campos!"); return;}
+  await addDoc(collection(db,"posts"),{title:t,content:c,date:new Date().toISOString()});
+  document.getElementById("postTitle").value=""; document.getElementById("postContent").value="";
+  loadPosts(); updateDashboard();
+};
+
+// RAID CHART
 async function loadRaidCharts(){
   const raids=["dreamrift","voidspire","quelthanas"];
   const ctx=document.getElementById('raidChart').getContext('2d');
@@ -232,10 +299,11 @@ onAuthStateChanged(auth,user=>{
   if(user){
     loginForm.style.display="none";
     adminContent.style.display="block";
-    loadAllData(); // APENAS CARREGA DADOS, NADA REPETE
+    loadAllData();
     initMenu();
   }
 });
 </script>
+
 </body>
 </html>
