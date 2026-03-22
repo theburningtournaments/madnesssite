@@ -121,15 +121,7 @@ th, td {
 <body>
 
 <div class="navbar">
-  <div>MADNESS ADMIN</div>
-</div>
-
-<div class="sidebar">
-  <div class="menu-item active" data-section="dashboard">📊 Gráficos</div>
-  <div class="menu-item" data-section="loot">🎁 Loot</div>
-  <div class="menu-item" data-section="players">👥 Players</div>
-  <div class="menu-item" data-section="bank">🏦 Guild Bank</div>
-  <button id="sidebarLogout">Logout</button>
+  <div>ADMIN</div>
 </div>
 
 <!-- LOGIN -->
@@ -141,6 +133,15 @@ th, td {
 
 <!-- ADMIN -->
 <div id="adminContent" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="menu-item active" data-section="dashboard">📊 Gráficos</div>
+    <div class="menu-item" data-section="loot">🎁 Loot</div>
+    <div class="menu-item" data-section="players">👥 Players</div>
+    <div class="menu-item" data-section="bank">🏦 Guild Bank</div>
+    <button id="sidebarLogout">Logout</button>
+  </div>
 
   <!-- DASHBOARD -->
   <div class="container" id="dashboard">
@@ -220,48 +221,61 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-/* MENU */
-const menuItems = document.querySelectorAll(".menu-item");
+const loginForm = document.getElementById("loginForm");
+const adminContent = document.getElementById("adminContent");
+const sidebar = document.getElementById("sidebar");
+
 const dashboard = document.getElementById("dashboard");
 const charts = document.getElementById("charts");
 const lootSection = document.getElementById("lootSection");
 const playersSection = document.getElementById("playersSection");
 const bankSection = document.getElementById("bankSection");
 
-menuItems.forEach(item=>{
-  item.onclick=()=>{
-    menuItems.forEach(i=>i.classList.remove("active"));
-    item.classList.add("active");
-    dashboard.style.display="none";
-    charts.style.display="none";
-    lootSection.style.display="none";
-    playersSection.style.display="none";
-    bankSection.style.display="none";
-    if(item.dataset.section==="dashboard"){dashboard.style.display="flex"; charts.style.display="flex";}
-    if(item.dataset.section==="loot") lootSection.style.display="flex";
-    if(item.dataset.section==="players") playersSection.style.display="flex";
-    if(item.dataset.section==="bank") bankSection.style.display="flex";
-  };
-});
+// LOGIN
+document.getElementById("loginBtn").onclick = async () => {
+  const emailVal = document.getElementById("email").value;
+  const passwordVal = document.getElementById("password").value;
 
-/* LOGOUT */
+  try {
+    await signInWithEmailAndPassword(auth, emailVal, passwordVal);
+    loginForm.style.display = "none";
+    adminContent.style.display = "block";
+    loadAllData();
+    initMenu();
+  } catch (err) {
+    alert("Email ou senha incorretos!");
+  }
+};
+
+// LOGOUT
 document.getElementById("sidebarLogout").onclick = async () => {
   await signOut(auth);
   window.location.href = "index.html";
 };
 
-/* LOGIN */
-const loginBtn = document.getElementById("loginBtn");
-loginBtn.onclick=()=>{
-  signInWithEmailAndPassword(auth,email.value,password.value)
-  .then(()=>{
-    loginForm.style.display="none";
-    adminContent.style.display="block";
-    loadAllData();
-  });
-};
+// MENU
+function initMenu() {
+  const menuItems = sidebar.querySelectorAll(".menu-item");
+  menuItems.forEach(item => {
+    item.onclick = () => {
+      menuItems.forEach(i => i.classList.remove("active"));
+      item.classList.add("active");
 
-/* LOAD ALL DATA */
+      dashboard.style.display="none";
+      charts.style.display="none";
+      lootSection.style.display="none";
+      playersSection.style.display="none";
+      bankSection.style.display="none";
+
+      if(item.dataset.section==="dashboard"){dashboard.style.display="flex"; charts.style.display="flex";}
+      if(item.dataset.section==="loot") lootSection.style.display="flex";
+      if(item.dataset.section==="players") playersSection.style.display="flex";
+      if(item.dataset.section==="bank") bankSection.style.display="flex";
+    };
+  });
+}
+
+// LOAD DATA
 async function loadAllData(){
   await loadLoot();
   await loadPlayers();
@@ -269,7 +283,7 @@ async function loadAllData(){
   await loadRaidCharts();
 }
 
-/* LOOT */
+// LOOT
 async function loadLoot(){
   const tbody=document.querySelector("#lootTable tbody"); tbody.innerHTML="";
   const snap=await getDocs(collection(db,"loot"));
@@ -280,12 +294,12 @@ async function loadLoot(){
     tbody.appendChild(tr);
   });
 }
-addLootBtn.onclick=async()=>{
+document.getElementById("addLootBtn").onclick=async()=>{
   await addDoc(collection(db,"loot"),{player:lootPlayer.value,item:lootItem.value,type:lootType.value,date:lootDate.value});
   loadLoot();
 };
 
-/* PLAYERS */
+// PLAYERS
 async function loadPlayers(){
   const tbody=document.querySelector("#playersTable tbody"); tbody.innerHTML="";
   const snap=await getDocs(collection(db,"players"));
@@ -296,12 +310,12 @@ async function loadPlayers(){
     tbody.appendChild(tr);
   });
 }
-addPlayerBtn.onclick=async()=>{
+document.getElementById("addPlayerBtn").onclick=async()=>{
   await addDoc(collection(db,"players"),{name:playerName.value,class:playerClass.value,ilvl:playerIlvl.value,enchats:playerEnchats.value});
   loadPlayers();
 };
 
-/* BANK */
+// BANK
 async function loadBank(){
   const tbody=document.querySelector("#bankTable tbody"); tbody.innerHTML="";
   const snap=await getDocs(collection(db,"bank"));
@@ -312,16 +326,16 @@ async function loadBank(){
     tbody.appendChild(tr);
   });
 }
-addBankBtn.onclick=async()=>{
+document.getElementById("addBankBtn").onclick=async()=>{
   await addDoc(collection(db,"bank"),{player:bankPlayer.value,goldPlayer:bankGoldPlayer.value,goldGuild:bankGoldGuild.value,item:bankItem.value,date:bankDate.value});
   loadBank();
 };
 
-/* RAIDS CHART */
-async function loadRaidCharts() {
+// RAIDS CHART
+async function loadRaidCharts(){
   const raids = ["dreamrift","voidspire","quelthanas"];
   const ctx = document.getElementById('raidChart').getContext('2d');
-  const labels = []; const progresses = [];
+  const labels=[]; const progresses=[];
   const snap=await getDocs(collection(db,"progress"));
   raids.forEach(raid=>{
     let total=0,killed=0;
@@ -329,19 +343,16 @@ async function loadRaidCharts() {
     labels.push(raid);
     progresses.push(total?Math.round((killed/total)*100):0);
   });
-  new Chart(ctx,{
-    type:'line',
-    data:{labels, datasets:[{label:'Progresso (%)',data:progresses,borderColor:'gold',backgroundColor:'rgba(255,215,0,0.2)',tension:0.3,fill:true}]},
-    options:{responsive:true, scales:{y:{beginAtZero:true,max:100}}}
-  });
+  new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Progresso (%)',data:progresses,borderColor:'gold',backgroundColor:'rgba(255,215,0,0.2)',tension:0.3,fill:true}]},options:{responsive:true,scales:{y:{beginAtZero:true,max:100}}}});
 }
 
-/* ON AUTH CHANGE */
+// ON AUTH CHANGE
 onAuthStateChanged(auth,user=>{
   if(user){
     loginForm.style.display="none";
     adminContent.style.display="block";
     loadAllData();
+    initMenu();
   }
 });
 </script>
