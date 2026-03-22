@@ -118,7 +118,7 @@ th, td { padding:8px; border-bottom:1px solid gold; }
 <script type="module">
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 const app = initializeApp(firebaseConfig);
@@ -211,12 +211,13 @@ async function loadLoot(){
   });
 }
 document.getElementById("addLootBtn").onclick=async()=>{
-  const p=document.getElementById("lootPlayer").value;
-  const i=document.getElementById("lootItem").value;
-  const t=document.getElementById("lootType").value;
-  const d=document.getElementById("lootDate").value;
-  if(!p||!i||!t||!d){alert("Preencha todos os campos!"); return;}
-  await addDoc(collection(db,"loot"),{player:p,item:i,type:t,date:d});
+  const player=document.getElementById("lootPlayer").value;
+  const item=document.getElementById("lootItem").value;
+  const type=document.getElementById("lootType").value;
+  const date=document.getElementById("lootDate").value;
+  if(!player||!item||!type||!date){alert("Preencha todos os campos!"); return;}
+  const id = `${player}_${item}_${date}`; // ID único
+  await setDoc(doc(db,"loot",id), {player,item,type,date});
   document.getElementById("lootPlayer").value=""; document.getElementById("lootItem").value=""; document.getElementById("lootType").value=""; document.getElementById("lootDate").value="";
   loadLoot(); updateDashboard();
 };
@@ -233,10 +234,14 @@ async function loadPlayers(){
   });
 }
 document.getElementById("addPlayerBtn").onclick=async()=>{
-  const n=playerName.value; const c=playerClass.value; const il=playerIlvl.value; const e=playerEnchats.value;
+  const n=document.getElementById("playerName").value;
+  const c=document.getElementById("playerClass").value;
+  const il=document.getElementById("playerIlvl").value;
+  const e=document.getElementById("playerEnchats").value;
   if(!n||!c||!il){alert("Preencha todos os campos!"); return;}
-  await addDoc(collection(db,"players"),{name:n,class:c,ilvl:il,enchats:e});
-  playerName.value=""; playerClass.value=""; playerIlvl.value=""; playerEnchats.value="";
+  const id = n; // ID único por nome
+  await setDoc(doc(db,"players",id),{name:n,class:c,ilvl:il,enchats:e});
+  document.getElementById("playerName").value=""; document.getElementById("playerClass").value=""; document.getElementById("playerIlvl").value=""; document.getElementById("playerEnchats").value="";
   loadPlayers();
 };
 
@@ -252,10 +257,15 @@ async function loadBank(){
   });
 }
 document.getElementById("addBankBtn").onclick=async()=>{
-  const p=bankPlayer.value; const gp=bankGoldPlayer.value; const gg=bankGoldGuild.value; const it=bankItem.value; const d=bankDate.value;
+  const p=document.getElementById("bankPlayer").value;
+  const gp=document.getElementById("bankGoldPlayer").value;
+  const gg=document.getElementById("bankGoldGuild").value;
+  const it=document.getElementById("bankItem").value;
+  const d=document.getElementById("bankDate").value;
   if(!p||!gp||!gg||!it||!d){alert("Preencha todos os campos!"); return;}
-  await addDoc(collection(db,"bank"),{player:p,goldPlayer:gp,goldGuild:gg,item:it,date:d});
-  bankPlayer.value=""; bankGoldPlayer.value=""; bankGoldGuild.value=""; bankItem.value=""; bankDate.value="";
+  const id = `${p}_${it}_${d}`; // ID único
+  await setDoc(doc(db,"bank",id),{player:p,goldPlayer:gp,goldGuild:gg,item:it,date:d});
+  document.getElementById("bankPlayer").value=""; document.getElementById("bankGoldPlayer").value=""; document.getElementById("bankGoldGuild").value=""; document.getElementById("bankItem").value=""; document.getElementById("bankDate").value="";
   loadBank();
 };
 
@@ -274,7 +284,8 @@ document.getElementById("addPostBtn").onclick=async()=>{
   const t=document.getElementById("postTitle").value;
   const c=document.getElementById("postContent").value;
   if(!t||!c){alert("Preencha todos os campos!"); return;}
-  await addDoc(collection(db,"posts"),{title:t,content:c,date:new Date().toISOString()});
+  const id = t+"_"+new Date().getTime();
+  await setDoc(doc(db,"posts",id),{title:t,content:c,date:new Date().toISOString()});
   document.getElementById("postTitle").value=""; document.getElementById("postContent").value="";
   loadPosts(); updateDashboard();
 };
