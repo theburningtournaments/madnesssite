@@ -3,16 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <title>Admin - Madness</title>
-<link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body {
   background: linear-gradient(to bottom, #0a0a0a, #111);
   color: gold;
-  font-family: "Friz Quadrata", Arial, sans-serif;
+  font-family: Arial;
   margin: 0;
-  padding: 0;
 }
 
 /* NAVBAR */
@@ -21,13 +19,11 @@ body {
   top: 0;
   width: 100%;
   background: #111;
-  color: gold;
   padding: 12px 20px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  border-bottom: 2px solid gold;
   z-index: 1000;
-  border-bottom: 3px solid gold;
 }
 
 /* SIDEBAR */
@@ -40,136 +36,89 @@ body {
   background: #0d0d0d;
   border-right: 2px solid gold;
   padding-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 
 .menu-item {
+  display: block;
+  padding: 12px 20px;
   color: gold;
   text-decoration: none;
-  padding: 12px 20px;
-  font-weight: bold;
-  transition: all 0.3s;
-  border-left: 3px solid transparent;
+  cursor: pointer;
 }
 
-.menu-item:hover {
-  background: #1a1a1a;
-  border-left: 3px solid #ffd700;
-}
-
+.menu-item:hover,
 .menu-item.active {
-  background: #111;
+  background: #1a1a1a;
   border-left: 3px solid gold;
-  box-shadow: inset 0 0 10px rgba(255,215,0,0.2);
 }
 
 /* CONTAINER */
 .container {
-  margin-top: 80px;
   margin-left: 240px;
+  margin-top: 80px;
   padding: 20px;
   display: flex;
   flex-wrap: wrap;
-  gap: 25px;
+  gap: 20px;
 }
 
 .card {
-  background: linear-gradient(145deg, #1b1b1b, #111);
-  padding: 25px;
-  border-radius: 12px;
+  background: #111;
+  padding: 20px;
   border: 2px solid gold;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-  transition: transform 0.3s, box-shadow 0.3s;
-  width: 320px;
-}
-
-.card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 25px #ffd700;
-}
-
-.card h3 {
-  margin-top: 0;
+  border-radius: 10px;
+  width: 300px;
 }
 
 .card p {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: bold;
 }
 
 /* TABLE */
-#lootTable {
+table {
   width: 100%;
+  margin-top: 10px;
   border-collapse: collapse;
-  margin-top: 15px;
 }
 
-#lootTable th, #lootTable td {
-  padding: 10px;
+th, td {
+  padding: 8px;
   border-bottom: 1px solid gold;
 }
 
 /* LOGIN */
 #loginForm {
-  max-width: 420px;
+  max-width: 400px;
   margin: 120px auto;
   background: #111;
-  padding: 25px;
+  padding: 20px;
   border: 2px solid gold;
-  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-#loginForm input {
-  padding: 7px;
-  background: #222;
-  color: gold;
-  border: 1px solid gold;
-}
-
-/* POPUP */
-.popup {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: #222;
-  color: gold;
-  border: 2px solid gold;
-  padding: 10px 20px;
-  border-radius: 10px;
-  display: none;
+  gap: 10px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
 <div class="navbar">
-  <div>MADNESS</div>
-  <div>
-    <a href="index.html">Info</a>
-    <a href="#" id="logoutBtn" style="display:none;">Logout</a>
-  </div>
+  <div>MADNESS ADMIN</div>
+  <button id="logoutBtn" style="display:none;">Logout</button>
 </div>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
-  <a href="#" class="menu-item active" data-section="dashboard">📊 Gráficos</a>
-  <a href="#" class="menu-item" data-section="loot">🎁 Loot</a>
-  <a href="#" class="menu-item" data-section="players">👥 Players Guild</a>
-  <a href="#" class="menu-item" data-section="bank">🏦 Guild Bank / BOE</a>
+  <div class="menu-item active" data-section="dashboard">📊 Gráficos</div>
+  <div class="menu-item" data-section="loot">🎁 Loot</div>
+  <div class="menu-item" data-section="players">👥 Players</div>
+  <div class="menu-item" data-section="bank">🏦 Guild Bank</div>
 </div>
 
 <!-- LOGIN -->
 <div id="loginForm">
-  <h3>Login Admin</h3>
   <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Senha">
+  <input type="password" id="password" placeholder="Password">
   <button id="loginBtn">Login</button>
 </div>
 
@@ -178,12 +127,11 @@ body {
 
   <!-- DASHBOARD -->
   <div class="container" id="dashboard">
-    <div class="card"><h3>Total Posts</h3><p id="totalPosts">0</p></div>
-    <div class="card"><h3>Total Loot</h3><p id="totalLoot">0</p></div>
-    <div class="card"><h3>Raids</h3><p id="raidsCompleted">0</p></div>
+    <div class="card"><p id="totalPosts">0</p><span>Posts</span></div>
+    <div class="card"><p id="totalLoot">0</p><span>Loot</span></div>
+    <div class="card"><p id="raidsCompleted">0</p><span>Raids</span></div>
   </div>
 
-  <!-- CHARTS -->
   <div class="container" id="charts">
     <canvas id="raidChart"></canvas>
   </div>
@@ -191,19 +139,54 @@ body {
   <!-- LOOT -->
   <div class="container" id="lootSection" style="display:none;">
     <div class="card" style="width:100%;">
-      <h3>Gerenciar Loot</h3>
+      <h3>Loot</h3>
 
-      <input type="text" id="lootPlayer" placeholder="Player">
-      <input type="text" id="lootItem" placeholder="Item">
-      <input type="text" id="lootType" placeholder="Tipo">
+      <input id="lootPlayer" placeholder="Player">
+      <input id="lootItem" placeholder="Item">
+      <input id="lootType" placeholder="Tipo">
       <input type="date" id="lootDate">
       <button id="addLootBtn">Adicionar</button>
 
       <table id="lootTable">
         <thead>
-          <tr>
-            <th>Player</th><th>Item</th><th>Tipo</th><th>Data</th><th></th>
-          </tr>
+          <tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th><th></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PLAYERS -->
+  <div class="container" id="playersSection" style="display:none;">
+    <div class="card" style="width:100%;">
+      <h3>Players Guild</h3>
+
+      <input id="playerName" placeholder="Nome">
+      <input id="playerClass" placeholder="Classe">
+      <input id="playerIlvl" placeholder="iLvl">
+      <button id="addPlayerBtn">Adicionar</button>
+
+      <table id="playersTable">
+        <thead>
+          <tr><th>Nome</th><th>Classe</th><th>iLvl</th><th></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BANK -->
+  <div class="container" id="bankSection" style="display:none;">
+    <div class="card" style="width:100%;">
+      <h3>Guild Bank / BOE</h3>
+
+      <input id="bankItem" placeholder="Item">
+      <input id="bankValue" placeholder="Gold">
+      <button id="addBankBtn">Adicionar</button>
+
+      <table id="bankTable">
+        <thead>
+          <tr><th>Item</th><th>Gold</th><th></th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -212,13 +195,11 @@ body {
 
 </div>
 
-<div class="popup" id="popupMsg"></div>
-
 <script type="module">
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -227,51 +208,41 @@ const auth = getAuth(app);
 /* MENU */
 const menuItems = document.querySelectorAll(".menu-item");
 
-menuItems.forEach(item => {
-  item.onclick = () => {
-    menuItems.forEach(i => i.classList.remove("active"));
+menuItems.forEach(item=>{
+  item.onclick=()=>{
+    menuItems.forEach(i=>i.classList.remove("active"));
     item.classList.add("active");
 
-    document.getElementById("dashboard").style.display="none";
-    document.getElementById("charts").style.display="none";
-    document.getElementById("lootSection").style.display="none";
+    dashboard.style.display="none";
+    charts.style.display="none";
+    lootSection.style.display="none";
+    playersSection.style.display="none";
+    bankSection.style.display="none";
 
     if(item.dataset.section==="dashboard"){
-      document.getElementById("dashboard").style.display="flex";
-      document.getElementById("charts").style.display="flex";
+      dashboard.style.display="flex";
+      charts.style.display="flex";
     }
-
-    if(item.dataset.section==="loot"){
-      document.getElementById("lootSection").style.display="flex";
-    }
-
-    if(item.dataset.section==="players"){
-      alert("Players em breve");
-    }
-
-    if(item.dataset.section==="bank"){
-      alert("Guild Bank em breve");
-    }
+    if(item.dataset.section==="loot") lootSection.style.display="flex";
+    if(item.dataset.section==="players") playersSection.style.display="flex";
+    if(item.dataset.section==="bank") bankSection.style.display="flex";
   };
 });
 
 /* LOGIN */
-document.getElementById("loginBtn").onclick = ()=>{
-  signInWithEmailAndPassword(auth,
-    document.getElementById("email").value,
-    document.getElementById("password").value
-  ).then(()=>{
-    document.getElementById("loginForm").style.display="none";
-    document.getElementById("adminContent").style.display="block";
+loginBtn.onclick=()=>{
+  signInWithEmailAndPassword(auth,email.value,password.value)
+  .then(()=>{
+    loginForm.style.display="none";
+    adminContent.style.display="block";
   });
 };
 
-/* LOOT */
+/* LOAD DATA */
 async function loadLoot(){
   const tbody=document.querySelector("#lootTable tbody");
   tbody.innerHTML="";
   const snap=await getDocs(collection(db,"loot"));
-
   snap.forEach(d=>{
     const tr=document.createElement("tr");
     tr.innerHTML=`
@@ -279,8 +250,7 @@ async function loadLoot(){
       <td>${d.data().item}</td>
       <td>${d.data().type}</td>
       <td>${d.data().date}</td>
-      <td><button data-id="${d.id}">X</button></td>
-    `;
+      <td><button>X</button></td>`;
     tr.querySelector("button").onclick=async()=>{
       await deleteDoc(doc(db,"loot",d.id));
       loadLoot();
@@ -289,7 +259,45 @@ async function loadLoot(){
   });
 }
 
-document.getElementById("addLootBtn").onclick=async()=>{
+async function loadPlayers(){
+  const tbody=document.querySelector("#playersTable tbody");
+  tbody.innerHTML="";
+  const snap=await getDocs(collection(db,"players"));
+  snap.forEach(d=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${d.data().name}</td>
+      <td>${d.data().class}</td>
+      <td>${d.data().ilvl}</td>
+      <td><button>X</button></td>`;
+    tr.querySelector("button").onclick=async()=>{
+      await deleteDoc(doc(db,"players",d.id));
+      loadPlayers();
+    };
+    tbody.appendChild(tr);
+  });
+}
+
+async function loadBank(){
+  const tbody=document.querySelector("#bankTable tbody");
+  tbody.innerHTML="";
+  const snap=await getDocs(collection(db,"bank"));
+  snap.forEach(d=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${d.data().item}</td>
+      <td>${d.data().value}</td>
+      <td><button>X</button></td>`;
+    tr.querySelector("button").onclick=async()=>{
+      await deleteDoc(doc(db,"bank",d.id));
+      loadBank();
+    };
+    tbody.appendChild(tr);
+  });
+}
+
+/* ADD */
+addLootBtn.onclick=async()=>{
   await addDoc(collection(db,"loot"),{
     player:lootPlayer.value,
     item:lootItem.value,
@@ -299,11 +307,31 @@ document.getElementById("addLootBtn").onclick=async()=>{
   loadLoot();
 };
 
-onAuthStateChanged(auth,(user)=>{
+addPlayerBtn.onclick=async()=>{
+  await addDoc(collection(db,"players"),{
+    name:playerName.value,
+    class:playerClass.value,
+    ilvl:playerIlvl.value
+  });
+  loadPlayers();
+};
+
+addBankBtn.onclick=async()=>{
+  await addDoc(collection(db,"bank"),{
+    item:bankItem.value,
+    value:bankValue.value
+  });
+  loadBank();
+};
+
+/* AUTH */
+onAuthStateChanged(auth,user=>{
   if(user){
-    document.getElementById("loginForm").style.display="none";
-    document.getElementById("adminContent").style.display="block";
+    loginForm.style.display="none";
+    adminContent.style.display="block";
     loadLoot();
+    loadPlayers();
+    loadBank();
   }
 });
 </script>
