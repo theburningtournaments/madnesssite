@@ -10,7 +10,9 @@ body{background:#0b0b0b;color:gold;font-family:Arial,sans-serif;margin:0;padding
 .navbar .links a{color:gold;margin-left:15px;text-decoration:none;font-weight:bold;}
 .container{margin-top:70px;padding:20px;}
 .card{background:#1c1c1c;padding:15px;margin-bottom:20px;border-radius:8px;border:1px solid gold;}
-.card img{max-width:100%;border-radius:8px;}
+.card img{max-width:100%;border-radius:8px;margin-top:10px;}
+input, textarea, button{padding:5px; margin:5px 0; border-radius:5px; border:1px solid gold; background:#111; color:gold;}
+textarea{width:100%; height:60px;}
 </style>
 </head>
 <body>
@@ -31,9 +33,9 @@ body{background:#0b0b0b;color:gold;font-family:Arial,sans-serif;margin:0;padding
   <!-- Admin post box -->
   <div id="adminPostBox" class="card" style="display:none;">
     <h2>Criar Post (Admin)</h2>
-    <input id="postTitle" placeholder="Título"><br><br>
-    <textarea id="postContent" placeholder="Conteúdo"></textarea><br><br>
-    <input id="postImage" placeholder="URL da Imagem"><br><br>
+    <input id="postTitle" placeholder="Título"><br>
+    <textarea id="postContent" placeholder="Conteúdo"></textarea><br>
+    <input id="postImageURL" placeholder="URL da Imagem"><br>
     <button id="createPostBtn">Publicar</button>
   </div>
 </div>
@@ -41,7 +43,7 @@ body{background:#0b0b0b;color:gold;font-family:Arial,sans-serif;margin:0;padding
 <script type="module">
 import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -49,31 +51,54 @@ const db = getFirestore(app);
 const isAdmin = localStorage.getItem("admin") === "true";
 if(isAdmin) document.getElementById("adminPostBox").style.display="block";
 
-// Carregar posts
-const snap = await getDocs(collection(db,"posts"));
-snap.forEach(doc=>{
-  const p = doc.data();
-  document.getElementById("posts").innerHTML += `
-    <div class="card">
+const postsContainer = document.getElementById("posts");
+
+// Função para carregar posts
+async function loadPosts(){
+  postsContainer.innerHTML = "";
+  const snap = await getDocs(collection(db,"posts"));
+  snap.forEach(docItem=>{
+    const p = docItem.data();
+    const div = document.createElement("div");
+    div.classList.add("card");
+    div.innerHTML = `
       <h2>${p.title}</h2>
-      ${p.image ? `<img src="${p.image}">` : ''}
+      ${p.imageURL ? `<img src="${p.imageURL}">` : ''}
       <p>${p.content}</p>
       <small>${p.date}</small>
-    </div>
-  `;
-});
-
-// Criar post
-document.getElementById("createPostBtn").onclick=async()=>{
-  await addDoc(collection(db,"posts"),{
-    title: document.getElementById("postTitle").value,
-    content: document.getElementById("postContent").value,
-    image: document.getElementById("postImage").value,
-    date: new Date().toLocaleDateString()
+    `;
+    postsContainer.appendChild(div);
   });
-  alert("Post publicado!");
-  location.reload();
 }
+
+// Publicar post (Admin)
+if(isAdmin){
+  document.getElementById("createPostBtn").onclick = async () => {
+    const title = document.getElementById("postTitle").value.trim();
+    const content = document.getElementById("postContent").value.trim();
+    const imageURL = document.getElementById("postImageURL").value.trim();
+    if(!title || !content){ alert("Preencha título e conteúdo!"); return; }
+
+    const id = title + "_" + Date.now();
+    await setDoc(doc(db,"posts",id),{
+      title: title,
+      content: content,
+      imageURL: imageURL,
+      date: new Date().toLocaleDateString()
+    });
+
+    // Limpar campos
+    document.getElementById("postTitle").value = "";
+    document.getElementById("postContent").value = "";
+    document.getElementById("postImageURL").value = "";
+
+    // Atualizar posts sem recarregar
+    loadPosts();
+  };
+}
+
+// Carregar posts ao iniciar
+loadPosts();
 </script>
 </body>
 </html>
