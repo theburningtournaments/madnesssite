@@ -13,13 +13,18 @@ body { background: linear-gradient(to bottom, #0a0a0a, #111); color: gold; font-
 #sidebarLogout, #homeBtn { margin:20px 10px 0 10px; padding:10px; background:#111; color:gold; border:1px solid gold; cursor:pointer; }
 .container { margin-left:240px; margin-top:80px; padding:20px; display:flex; flex-wrap:wrap; gap:20px; }
 .card { background:#111; padding:20px; border:2px solid gold; border-radius:10px; width:300px; }
-.card p { font-size:26px; font-weight:bold; }
+.card p { font-size:26px; font-weight:bold; margin:0; }
 input, textarea, button { margin:5px 5px 5px 0; padding:5px; border-radius:5px; border:1px solid gold; background:#111; color:gold; }
 textarea { width:100%; height:60px; }
 table { width:100%; margin-top:10px; border-collapse:collapse; }
-th, td { padding:8px; border-bottom:1px solid gold; }
+th, td { padding:10px; border-bottom:1px solid gold; text-align:left; vertical-align:middle; color:gold; }
+th { background:#222; }
+td img.postImage { width:80px; height:auto; display:block; margin:0 auto; border-radius:4px; }
+tr:nth-child(even) { background: #1c1c1c; }
+tr:nth-child(odd) { background: #111; }
+button { padding:4px 8px; border-radius:4px; background:#111; color:gold; border:1px solid gold; cursor:pointer; font-weight:bold; transition: all 0.3s; }
+button:hover { background:#222; box-shadow: 0 0 10px #ffd700; }
 #loginForm { max-width:400px; margin:120px auto; background:#111; padding:20px; border:2px solid gold; display:flex; flex-direction:column; gap:10px; }
-img.postImage { width:80px; height:auto; border-radius:4px; }
 </style>
 </head>
 <body>
@@ -62,7 +67,7 @@ img.postImage { width:80px; height:auto; border-radius:4px; }
       <input type="date" id="lootDate">
       <button id="addLootBtn">Adicionar</button>
       <table id="lootTable">
-        <thead><tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th><th></th></tr></thead>
+        <thead><tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th><th>Ações</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -78,7 +83,7 @@ img.postImage { width:80px; height:auto; border-radius:4px; }
       <input id="playerEnchats" placeholder="Enchats">
       <button id="addPlayerBtn">Adicionar</button>
       <table id="playersTable">
-        <thead><tr><th>Nome</th><th>Classe</th><th>iLvl</th><th>Enchats</th><th></th></tr></thead>
+        <thead><tr><th>Nome</th><th>Classe</th><th>iLvl</th><th>Enchats</th><th>Ações</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -95,7 +100,7 @@ img.postImage { width:80px; height:auto; border-radius:4px; }
       <input type="date" id="bankDate">
       <button id="addBankBtn">Adicionar</button>
       <table id="bankTable">
-        <thead><tr><th>Player</th><th>Gold Player</th><th>Gold Guild</th><th>Item</th><th>Data</th><th></th></tr></thead>
+        <thead><tr><th>Player</th><th>Gold Player</th><th>Gold Guild</th><th>Item</th><th>Data</th><th>Ações</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -176,14 +181,13 @@ function initMenu(){
     };
   });
 
-  // Botão Home
   document.getElementById("homeBtn").onclick = ()=>{
     localStorage.setItem("admin","true");
     window.location.href="index.html";
   };
 }
 
-// DASHBOARD UPDATE
+// DASHBOARD
 async function updateDashboard(){
   const postsSnap = await getDocs(collection(db,"posts"));
   const lootSnap = await getDocs(collection(db,"loot"));
@@ -292,11 +296,7 @@ async function loadPosts(){
       <td>${d.data().imageURL ? `<img class="postImage" src="${d.data().imageURL}">` : ''}</td>
       <td><button>X</button></td>
     `;
-    tr.querySelector("button").onclick=async()=>{
-      await deleteDoc(doc(db,"posts",d.id));
-      loadPosts();
-      updateDashboard();
-    };
+    tr.querySelector("button").onclick=async()=>{await deleteDoc(doc(db,"posts",d.id)); loadPosts(); updateDashboard();};
     tbody.appendChild(tr);
   });
 }
