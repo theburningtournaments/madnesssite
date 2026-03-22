@@ -19,6 +19,7 @@ textarea { width: 100%; height: 60px; }
 table { width:100%; margin-top:10px; border-collapse:collapse; }
 th, td { padding:8px; border-bottom:1px solid gold; }
 #loginForm { max-width:400px; margin:120px auto; background:#111; padding:20px; border:2px solid gold; display:flex; flex-direction:column; gap:10px; }
+img.postImage { width:80px; height:auto; border-radius:4px; }
 </style>
 </head>
 <body>
@@ -105,9 +106,10 @@ th, td { padding:8px; border-bottom:1px solid gold; }
       <h3>Posts</h3>
       <input id="postTitle" placeholder="Título">
       <textarea id="postContent" placeholder="Conteúdo"></textarea>
+      <input type="file" id="postImage" accept="image/*">
       <button id="addPostBtn">Publicar</button>
       <table id="postsTable">
-        <thead><tr><th>Título</th><th>Conteúdo</th><th>Ações</th></tr></thead>
+        <thead><tr><th>Título</th><th>Conteúdo</th><th>Imagem</th><th>Ações</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -120,10 +122,12 @@ import { firebaseConfig } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
 const loginForm = document.getElementById("loginForm");
 const adminContent = document.getElementById("adminContent");
@@ -216,7 +220,7 @@ document.getElementById("addLootBtn").onclick=async()=>{
   const type=document.getElementById("lootType").value;
   const date=document.getElementById("lootDate").value;
   if(!player||!item||!type||!date){alert("Preencha todos os campos!"); return;}
-  const id = `${player}_${item}_${date}`; // ID único
+  const id = `${player}_${item}_${date}`;
   await setDoc(doc(db,"loot",id), {player,item,type,date});
   document.getElementById("lootPlayer").value=""; document.getElementById("lootItem").value=""; document.getElementById("lootType").value=""; document.getElementById("lootDate").value="";
   loadLoot(); updateDashboard();
@@ -239,7 +243,7 @@ document.getElementById("addPlayerBtn").onclick=async()=>{
   const il=document.getElementById("playerIlvl").value;
   const e=document.getElementById("playerEnchats").value;
   if(!n||!c||!il){alert("Preencha todos os campos!"); return;}
-  const id = n; // ID único por nome
+  const id = n;
   await setDoc(doc(db,"players",id),{name:n,class:c,ilvl:il,enchats:e});
   document.getElementById("playerName").value=""; document.getElementById("playerClass").value=""; document.getElementById("playerIlvl").value=""; document.getElementById("playerEnchats").value="";
   loadPlayers();
@@ -263,7 +267,7 @@ document.getElementById("addBankBtn").onclick=async()=>{
   const it=document.getElementById("bankItem").value;
   const d=document.getElementById("bankDate").value;
   if(!p||!gp||!gg||!it||!d){alert("Preencha todos os campos!"); return;}
-  const id = `${p}_${it}_${d}`; // ID único
+  const id = `${p}_${it}_${d}`;
   await setDoc(doc(db,"bank",id),{player:p,goldPlayer:gp,goldGuild:gg,item:it,date:d});
   document.getElementById("bankPlayer").value=""; document.getElementById("bankGoldPlayer").value=""; document.getElementById("bankGoldGuild").value=""; document.getElementById("bankItem").value=""; document.getElementById("bankDate").value="";
   loadBank();
@@ -275,19 +279,39 @@ async function loadPosts(){
   const snap=await getDocs(collection(db,"posts"));
   snap.forEach(d=>{
     const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${d.data().title}</td><td>${d.data().content}</td><td><button>X</button></td>`;
-    tr.querySelector("button").onclick=async()=>{await deleteDoc(doc(db,"posts",d.id)); loadPosts(); updateDashboard();};
+    tr.innerHTML=`
+      <td>${d.data().title}</td>
+      <td>${d.data().content}</td>
+      <td>${d.data().imageURL ? `<img class="postImage" src="${d.data().imageURL}">` : ''}</td>
+      <td><button>X</button></td>
+    `;
+    tr.querySelector("button").onclick=async()=>{
+      await deleteDoc(doc(db,"posts",d.id));
+      loadPosts();
+      updateDashboard();
+    };
     tbody.appendChild(tr);
   });
 }
 document.getElementById("addPostBtn").onclick=async()=>{
   const t=document.getElementById("postTitle").value;
   const c=document.getElementById("postContent").value;
-  if(!t||!c){alert("Preencha todos os campos!"); return;}
-  const id = t+"_"+new Date().getTime();
-  await setDoc(doc(db,"posts",id),{title:t,content:c,date:new Date().toISOString()});
-  document.getElementById("postTitle").value=""; document.getElementById("postContent").value="";
-  loadPosts(); updateDashboard();
+  const fileInput=document.getElementById("postImage");
+  if(!t||!c){alert("Preencha título e conteúdo!"); return;}
+  let imageURL="";
+  if(fileInput.files.length>0){
+    const file=fileInput.files[0];
+    const storageRef=ref(storage,`posts/${Date.now()}_${file.name}`);
+    await uploadBytes(storageRef,file);
+    imageURL=await getDownloadURL(storageRef);
+  }
+  const id=t+"_"+Date.now();
+  await setDoc(doc(db,"posts",id),{title:t,content:c,imageURL,date:new Date().toISOString()});
+  document.getElementById("postTitle").value="";
+  document.getElementById("postContent").value="";
+  fileInput.value="";
+  loadPosts();
+  updateDashboard();
 };
 
 // RAID CHART
