@@ -5,6 +5,7 @@
 <title>Admin - Madness</title>
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 body {
   background: linear-gradient(to bottom, #0a0a0a, #111);
@@ -14,6 +15,7 @@ body {
   padding: 0;
 }
 
+/* NAVBAR */
 .navbar {
   position: fixed;
   top: 0;
@@ -28,34 +30,45 @@ body {
   border-bottom: 3px solid gold;
 }
 
-.navbar .links a {
-  color: gold;
-  margin-left: 20px;
-  text-decoration: none;
-  font-weight: bold;
-  position: relative;
-  transition: 0.3s;
-}
-
-.navbar .links a.active::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  top: 60px;
   left: 0;
-  width: 100%;
-  height: 3px;
-  background: gold;
-  box-shadow: 0 0 8px gold;
-  border-radius: 2px;
+  width: 220px;
+  height: 100%;
+  background: #0d0d0d;
+  border-right: 2px solid gold;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.navbar .links a:hover {
-  color: #ffd700;
-  text-shadow: 0 0 6px #ffd700;
+.menu-item {
+  color: gold;
+  text-decoration: none;
+  padding: 12px 20px;
+  font-weight: bold;
+  transition: all 0.3s;
+  border-left: 3px solid transparent;
 }
 
+.menu-item:hover {
+  background: #1a1a1a;
+  border-left: 3px solid #ffd700;
+}
+
+.menu-item.active {
+  background: #111;
+  border-left: 3px solid gold;
+  box-shadow: inset 0 0 10px rgba(255,215,0,0.2);
+}
+
+/* CONTAINER */
 .container {
   margin-top: 80px;
+  margin-left: 240px;
   padding: 20px;
   display: flex;
   flex-wrap: wrap;
@@ -71,6 +84,7 @@ body {
   transition: transform 0.3s, box-shadow 0.3s;
   width: 320px;
 }
+
 .card:hover {
   transform: scale(1.05);
   box-shadow: 0 0 25px #ffd700;
@@ -78,39 +92,26 @@ body {
 
 .card h3 {
   margin-top: 0;
-  color: gold;
-  text-shadow: 0 0 4px #ffd700;
 }
 
-#charts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 25px;
-  margin-top: 20px;
-}
-
-canvas {
-  background: #111;
-  border: 1px solid gold;
-  border-radius: 12px;
-  padding: 10px;
-}
-
-button {
-  padding: 6px 12px;
-  border-radius: 6px;
-  background: #111;
-  color: gold;
-  border: 1px solid gold;
-  cursor: pointer;
-  transition: all 0.3s;
+.card p {
+  font-size: 28px;
   font-weight: bold;
 }
-button:hover {
-  background: #222;
-  box-shadow: 0 0 10px #ffd700;
+
+/* TABLE */
+#lootTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
 }
 
+#lootTable th, #lootTable td {
+  padding: 10px;
+  border-bottom: 1px solid gold;
+}
+
+/* LOGIN */
 #loginForm {
   max-width: 420px;
   margin: 120px auto;
@@ -125,35 +126,12 @@ button:hover {
 
 #loginForm input {
   padding: 7px;
-  border-radius: 6px;
   background: #222;
   color: gold;
   border: 1px solid gold;
-  font-weight: bold;
 }
 
-#lootTable {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-  background: linear-gradient(120deg, #1c1c1c, #111);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-#lootTable th, #lootTable td {
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid gold;
-}
-
-#lootTable th {
-  background: #222;
-}
-
-tr:nth-child(even) { background: #1c1c1c; }
-tr:nth-child(odd) { background: #111; }
-
+/* POPUP */
 .popup {
   position: fixed;
   top: 20px;
@@ -163,31 +141,31 @@ tr:nth-child(odd) { background: #111; }
   border: 2px solid gold;
   padding: 10px 20px;
   border-radius: 10px;
-  box-shadow: 0 0 10px gold;
   display: none;
-  z-index: 2000;
-  animation: fadeInOut 3s forwards;
-}
-@keyframes fadeInOut {
-  0% {opacity: 0; transform: translateY(-10px);}
-  10% {opacity: 1; transform: translateY(0);}
-  90% {opacity: 1; transform: translateY(0);}
-  100% {opacity: 0; transform: translateY(-10px);}
 }
 </style>
 </head>
+
 <body>
 
+<!-- NAVBAR -->
 <div class="navbar">
-  <div class="logo">MADNESS</div>
-  <div class="links">
-    <a href="index.html">Informações</a>
-    <a href="progresso.html">Progresso</a>
-    <a href="loot.html">Loot</a>
+  <div>MADNESS</div>
+  <div>
+    <a href="index.html">Info</a>
     <a href="#" id="logoutBtn" style="display:none;">Logout</a>
   </div>
 </div>
 
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <a href="#" class="menu-item active" data-section="dashboard">📊 Gráficos</a>
+  <a href="#" class="menu-item" data-section="loot">🎁 Loot</a>
+  <a href="#" class="menu-item" data-section="players">👥 Players Guild</a>
+  <a href="#" class="menu-item" data-section="bank">🏦 Guild Bank / BOE</a>
+</div>
+
+<!-- LOGIN -->
 <div id="loginForm">
   <h3>Login Admin</h3>
   <input type="email" id="email" placeholder="Email">
@@ -195,40 +173,37 @@ tr:nth-child(odd) { background: #111; }
   <button id="loginBtn">Login</button>
 </div>
 
+<!-- ADMIN -->
 <div id="adminContent" style="display:none;">
 
+  <!-- DASHBOARD -->
   <div class="container" id="dashboard">
-    <div class="card">
-      <h3>Total de Posts</h3>
-      <p id="totalPosts">0</p>
-    </div>
-    <div class="card">
-      <h3>Total de Loot</h3>
-      <p id="totalLoot">0</p>
-    </div>
-    <div class="card">
-      <h3>Raids Completadas</h3>
-      <p id="raidsCompleted">0</p>
-    </div>
+    <div class="card"><h3>Total Posts</h3><p id="totalPosts">0</p></div>
+    <div class="card"><h3>Total Loot</h3><p id="totalLoot">0</p></div>
+    <div class="card"><h3>Raids</h3><p id="raidsCompleted">0</p></div>
   </div>
 
+  <!-- CHARTS -->
   <div class="container" id="charts">
-    <canvas id="raidChart" width="400" height="200"></canvas>
+    <canvas id="raidChart"></canvas>
   </div>
 
-  <div class="container">
-    <div class="card">
+  <!-- LOOT -->
+  <div class="container" id="lootSection" style="display:none;">
+    <div class="card" style="width:100%;">
       <h3>Gerenciar Loot</h3>
-      <div style="display:flex; gap:5px; flex-wrap:wrap;">
-        <input type="text" id="lootPlayer" placeholder="Player">
-        <input type="text" id="lootItem" placeholder="Item">
-        <input type="text" id="lootType" placeholder="Tipo">
-        <input type="date" id="lootDate">
-        <button id="addLootBtn">Adicionar Loot</button>
-      </div>
+
+      <input type="text" id="lootPlayer" placeholder="Player">
+      <input type="text" id="lootItem" placeholder="Item">
+      <input type="text" id="lootType" placeholder="Tipo">
+      <input type="date" id="lootDate">
+      <button id="addLootBtn">Adicionar</button>
+
       <table id="lootTable">
         <thead>
-          <tr><th>Player</th><th>Item</th><th>Tipo</th><th>Data</th><th>Ações</th></tr>
+          <tr>
+            <th>Player</th><th>Item</th><th>Tipo</th><th>Data</th><th></th>
+          </tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -249,157 +224,88 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-const loginForm = document.getElementById("loginForm");
-const adminContent = document.getElementById("adminContent");
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const lootTableBody = document.querySelector("#lootTable tbody");
-const addLootBtn = document.getElementById("addLootBtn");
-const popup = document.getElementById("popupMsg");
+/* MENU */
+const menuItems = document.querySelectorAll(".menu-item");
 
-function showPopup(msg){
-  popup.innerText = msg;
-  popup.style.display = "block";
-  setTimeout(()=>{popup.style.display="none";},3000);
-}
+menuItems.forEach(item => {
+  item.onclick = () => {
+    menuItems.forEach(i => i.classList.remove("active"));
+    item.classList.add("active");
 
-// Login
-loginBtn.onclick = () => {
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
+    document.getElementById("dashboard").style.display="none";
+    document.getElementById("charts").style.display="none";
+    document.getElementById("lootSection").style.display="none";
 
-  signInWithEmailAndPassword(auth, email, pass)
-    .then((userCredential) => {
-      localStorage.setItem("admin","true");
-      loginForm.style.display="none";
-      adminContent.style.display="block";
-      logoutBtn.style.display="inline-block";
-      loadDashboard();
-      loadLoot();
-      showPopup("Login bem-sucedido!");
-    })
-    .catch((error) => {
-      showPopup("Email ou senha incorretos!");
-      console.log(error);
-    });
-};
+    if(item.dataset.section==="dashboard"){
+      document.getElementById("dashboard").style.display="flex";
+      document.getElementById("charts").style.display="flex";
+    }
 
-// Logout
-logoutBtn.onclick = () => {
-  signOut(auth).then(() => {
-    localStorage.removeItem("admin");
-    window.location.reload();
-  });
-};
+    if(item.dataset.section==="loot"){
+      document.getElementById("lootSection").style.display="flex";
+    }
 
-// Mantém conteúdo visível se já logado
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    loginForm.style.display="none";
-    adminContent.style.display="block";
-    logoutBtn.style.display="inline-block";
-    loadDashboard();
-    loadLoot();
-  } else {
-    loginForm.style.display="block";
-    adminContent.style.display="none";
-    logoutBtn.style.display="none";
-  }
+    if(item.dataset.section==="players"){
+      alert("Players em breve");
+    }
+
+    if(item.dataset.section==="bank"){
+      alert("Guild Bank em breve");
+    }
+  };
 });
 
-// Dashboard
-async function loadDashboard(){
-  const postsSnap = await getDocs(collection(db,"posts"));
-  const lootSnap = await getDocs(collection(db,"loot"));
-  document.getElementById("totalPosts").innerText = postsSnap.size;
-  document.getElementById("totalLoot").innerText = lootSnap.size;
-
-  const raids = ["dreamrift","voidspire","quelthanas"];
-  let completed=0;
-  for(const raid of raids){
-    const bossesSnap = await getDocs(collection(db,"progress"));
-    let killed=0, total=0;
-    bossesSnap.forEach(doc=>{
-      if(doc.id.startsWith(raid)){
-        total++;
-        if(doc.data().dead) killed++;
-      }
-    });
-    if(total>0 && killed===total) completed++;
-  }
-  document.getElementById("raidsCompleted").innerText = completed;
-
-  const ctx = document.getElementById('raidChart').getContext('2d');
-  const labels = [];
-  const progresses = [];
-  for(const raid of raids){
-    const bossesSnap = await getDocs(collection(db,"progress"));
-    let killed=0, total=0;
-    bossesSnap.forEach(doc=>{
-      if(doc.id.startsWith(raid)){
-        total++;
-        if(doc.data().dead) killed++;
-      }
-    });
-    labels.push(raid);
-    progresses.push(total>0?Math.round((killed/total)*100):0);
-  }
-
-  new Chart(ctx,{
-    type:'line',
-    data:{
-      labels:labels,
-      datasets:[{
-        label:'Progresso (%)',
-        data:progresses,
-        borderColor:'gold',
-        backgroundColor:'rgba(255,215,0,0.2)',
-        tension:0.3,
-        fill:true
-      }]
-    },
-    options:{responsive:true, scales:{y:{beginAtZero:true, max:100}}}
+/* LOGIN */
+document.getElementById("loginBtn").onclick = ()=>{
+  signInWithEmailAndPassword(auth,
+    document.getElementById("email").value,
+    document.getElementById("password").value
+  ).then(()=>{
+    document.getElementById("loginForm").style.display="none";
+    document.getElementById("adminContent").style.display="block";
   });
-}
+};
 
-// Loot CRUD
+/* LOOT */
 async function loadLoot(){
-  lootTableBody.innerHTML="";
-  const snap = await getDocs(collection(db,"loot"));
-  snap.forEach(docItem=>{
-    const row = document.createElement("tr");
-    row.innerHTML = `<td>${docItem.data().player}</td>
-                     <td>${docItem.data().item}</td>
-                     <td>${docItem.data().type}</td>
-                     <td>${docItem.data().date}</td>
-                     <td><button data-id="${docItem.id}" class="deleteBtn">Excluir</button></td>`;
-    lootTableBody.appendChild(row);
-  });
+  const tbody=document.querySelector("#lootTable tbody");
+  tbody.innerHTML="";
+  const snap=await getDocs(collection(db,"loot"));
 
-  document.querySelectorAll(".deleteBtn").forEach(btn=>{
-    btn.onclick = async ()=>{
-      const id = btn.dataset.id;
-      await deleteDoc(doc(db,"loot",id));
-      showPopup("Loot excluído!");
+  snap.forEach(d=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${d.data().player}</td>
+      <td>${d.data().item}</td>
+      <td>${d.data().type}</td>
+      <td>${d.data().date}</td>
+      <td><button data-id="${d.id}">X</button></td>
+    `;
+    tr.querySelector("button").onclick=async()=>{
+      await deleteDoc(doc(db,"loot",d.id));
       loadLoot();
     };
+    tbody.appendChild(tr);
   });
 }
 
-addLootBtn.onclick = async ()=>{
-  const player = document.getElementById("lootPlayer").value;
-  const item = document.getElementById("lootItem").value;
-  const type = document.getElementById("lootType").value;
-  const date = document.getElementById("lootDate").value;
-  if(!player||!item||!type||!date){ showPopup("Preencha todos os campos!"); return; }
-  await addDoc(collection(db,"loot"),{player,item,type,date});
-  showPopup("Loot adicionado!");
-  document.getElementById("lootPlayer").value="";
-  document.getElementById("lootItem").value="";
-  document.getElementById("lootType").value="";
-  document.getElementById("lootDate").value="";
+document.getElementById("addLootBtn").onclick=async()=>{
+  await addDoc(collection(db,"loot"),{
+    player:lootPlayer.value,
+    item:lootItem.value,
+    type:lootType.value,
+    date:lootDate.value
+  });
   loadLoot();
 };
+
+onAuthStateChanged(auth,(user)=>{
+  if(user){
+    document.getElementById("loginForm").style.display="none";
+    document.getElementById("adminContent").style.display="block";
+    loadLoot();
+  }
+});
 </script>
 
 </body>
